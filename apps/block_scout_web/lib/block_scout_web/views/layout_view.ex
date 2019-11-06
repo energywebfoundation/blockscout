@@ -7,62 +7,14 @@ defmodule BlockScoutWeb.LayoutView do
   @issue_url "https://github.com/poanetwork/blockscout/issues/new"
   @default_other_networks [
     %{
-      title: "POA Core",
-      url: "https://blockscout.com/poa/core"
+      title: "Energy Web Chain (EWC)",
+      url: "https://explorer.energyweb.org"
     },
     %{
-      title: "POA Sokol",
-      url: "https://blockscout.com/poa/sokol",
+      title: "Volta Testnet (VT)",
+      url: "https://volta-explorer.energyweb.org",
       test_net?: true
     },
-    %{
-      title: "xDai Chain",
-      url: "https://blockscout.com/poa/dai"
-    },
-    %{
-      title: "Ethereum Mainnet",
-      url: "https://blockscout.com/eth/mainnet"
-    },
-    %{
-      title: "Kovan Testnet",
-      url: "https://blockscout.com/eth/kovan",
-      test_net?: true
-    },
-    %{
-      title: "Ropsten Testnet",
-      url: "https://blockscout.com/eth/ropsten",
-      test_net?: true
-    },
-    %{
-      title: "Goerli Testnet",
-      url: "https://blockscout.com/eth/goerli",
-      test_net?: true
-    },
-    %{
-      title: "Rinkeby Testnet",
-      url: "https://blockscout.com/eth/rinkeby",
-      test_net?: true
-    },
-    %{
-      title: "Ethereum Classic",
-      url: "https://blockscout.com/etc/mainnet",
-      other?: true
-    },
-    %{
-      title: "Aerum Mainnet",
-      url: "https://blockscout.com/aerum/mainnet",
-      other?: true
-    },
-    %{
-      title: "Callisto Mainnet",
-      url: "https://blockscout.com/callisto/mainnet",
-      other?: true
-    },
-    %{
-      title: "RSK Mainnet",
-      url: "https://blockscout.com/rsk/mainnet",
-      other?: true
-    }
   ]
 
   alias BlockScoutWeb.SocialMedia
