@@ -5,6 +5,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { ContextReplacementPlugin } = require('webpack')
 const glob = require('glob')
+const webpack = require('webpack')
 
 function transpileViewScript(file) {
   return {
@@ -19,10 +20,7 @@ function transpileViewScript(file) {
           test: /\.js$/,
           exclude: /node_modules/,
           use: {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env']
-            }
+            loader: 'babel-loader'
           }
         }
       ]
@@ -75,6 +73,27 @@ const appJs =
     entry: {
       app: './js/app.js',
       stakes: './js/pages/stakes.js',
+      'chart-loader': './js/chart-loader.js',
+      'chain': './js/pages/chain.js',
+      'blocks': './js/pages/blocks.js',
+      'address': './js/pages/address.js',
+      'address-transactions': './js/pages/address/transactions.js',
+      'address-coin-balances': './js/pages/address/coin_balances.js',
+      'address-internal-transactions': './js/pages/address/internal_transactions.js',
+      'address-logs': './js/pages/address/logs.js',
+      'address-validations': './js/pages/address/validations.js',
+      'validated-transactions': './js/pages/transactions.js',
+      'pending-transactions': './js/pages/pending_transactions.js',
+      'transaction': './js/pages/transaction.js',
+      'verification-form': './js/pages/verification_form.js',
+      'token-counters': './js/pages/token_counters.js',
+      'admin-tasks': './js/pages/admin/tasks.js',
+      'read-token-contract': './js/pages/read_token_contract.js',
+      'smart-contract-helpers': './js/lib/smart_contract/index.js',
+      'token-transfers-toggle': './js/lib/token_transfers_toggle.js',
+      'try-api': './js/lib/try_api.js',
+      'try-eth-api': './js/lib/try_eth_api.js',
+      'async-listing-load': './js/lib/async_listing_load',
       'non-critical': './css/non-critical.scss'
     },
     output: {
@@ -90,10 +109,7 @@ const appJs =
           test: /\.js$/,
           exclude: /node_modules/,
           use: {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env']
-            }
+            loader: 'babel-loader'
           }
         },
         {
@@ -135,7 +151,10 @@ const appJs =
         filename: '../css/[name].css'
       }),
       new CopyWebpackPlugin([{ from: 'static/', to: '../' }]),
-      new ContextReplacementPlugin(/moment[\/\\]locale$/, /en/)
+      new ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+      new webpack.DefinePlugin({
+        'process.env.SOCKET_ROOT': JSON.stringify(process.env.SOCKET_ROOT)
+      })
     ]
   }
 

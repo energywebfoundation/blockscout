@@ -4,7 +4,7 @@ import humps from 'humps'
 import socket from '../../socket'
 import { connectElements } from '../../lib/redux_helpers.js'
 import { createAsyncLoadStore } from '../../lib/async_listing_load'
-import { createCoinBalanceHistoryChart } from '../../lib/coin_balance_history_chart'
+import '../address'
 
 export const initialState = {
   channelDisconnected: false
@@ -61,9 +61,4 @@ if ($('[data-page="coin-balance-history"]').length) {
       msg: humps.camelizeKeys(msg)
     })
   })
-
-  const chartContainer = $('[data-chart="coinBalanceHistoryChart"]')[0]
-  if (chartContainer) {
-    createCoinBalanceHistoryChart(chartContainer)
-  }
 }
