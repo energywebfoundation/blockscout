@@ -48,6 +48,11 @@ $footer-logo-width: auto !default;
   text-decoration: none;
   transition: $transition-cont;
 
+  img {
+    width: 22px;
+    filter: invert(74%) sepia(80%) saturate(571%) hue-rotate(195deg) brightness(91%) contrast(98%);
+  }
+
   &:hover {
     color: #fff;
   }

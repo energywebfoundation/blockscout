@@ -16,6 +16,12 @@
       <div class="col-xs-12 col-lg-3">
         <p class="footer-info-text"><%= gettext("%{network}'s %{subnetwork} block explorer. Based on Blockscout, an open source block explorer for Ethereum based networks.", network: network_title(), subnetwork: subnetwork_title()) %></p>
         <div class="footer-social-icons">
+          <a href="https://energyweb.org" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Website") %>'>
+            <i class="fas fa-globe"></i>
+          </a>
+          <a href="https://www.linkedin.com/company/energy-web-foundation/" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Linkedin") %>'>
+            <i class="fab fa-linkedin"></i>
+          </a>
           <a href="https://github.com/energywebfoundation" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Github") %>'>
             <i class="fab fa-github"></i>
           </a>
@@ -24,6 +30,12 @@
           </a>
           <a href="https://t.me/energyweb" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Telegram") %>'>
             <i class="fab fa-telegram-plane"></i>
+          </a>
+          <a href="https://medium.com/@energywebx" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Medium") %>'>
+            <i class="fab fa-medium"></i>
+          </a>
+          <a href="https://coinmarketcap.com/currencies/energy-web-token" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Coinmarketcap") %>'>
+            <img class="footer-social-icon-svg" alt="Coinmarketcap" src="/images/icons/coinmarketcap.svg" style="width: 22px; filter: invert(74%) sepia(80%) saturate(571%) hue-rotate(195deg) brightness(91%) contrast(98%);">
           </a>
         </div>
       </div>
