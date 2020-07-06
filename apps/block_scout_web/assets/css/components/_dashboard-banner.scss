@@ -12,7 +12,7 @@ $dashboard-stats-item-value-color: rgba(#fff, 0.8) !default;
 $dashboard-banner-chart-legend-label-color: #fff !default;
 $dashboard-banner-chart-legend-value-color: $dashboard-stats-item-value-color !default;
 $dashboard-stats-item-border-color: $primary !default;
-$dashboard-banner-network-plain-container-height: 205px;
+$dashboard-banner-network-plain-container-height: 140px;
 $dashboard-banner-chart-axis-font-color: $dashboard-stats-item-value-color !default;
 
 .dashboard-banner-container {
@@ -21,7 +21,7 @@ $dashboard-banner-chart-axis-font-color: $dashboard-stats-item-value-color !defa
   overflow: hidden;
   padding: 0;
   position: relative;
-  height: 264px;
+  height: 140px;
   @include media-breakpoint-down(sm) {
       height: auto;
   }
@@ -37,7 +37,7 @@ $dashboard-banner-chart-axis-font-color: $dashboard-stats-item-value-color !defa
   z-index: 9;
 
   @include media-breakpoint-between(lg, xl) {
-    height: 249px;
+    height: 140px;
   }
 
   @include media-breakpoint-down(sm) {
@@ -48,6 +48,7 @@ $dashboard-banner-chart-axis-font-color: $dashboard-stats-item-value-color !defa
 .dashboard-banner-network-graph {
   flex-grow: 1;
   padding: 15px 0 0 0;
+  align-self: center;
 
   @include media-breakpoint-down(md) {
     display: flex;
@@ -160,7 +161,7 @@ $dashboard-banner-chart-axis-font-color: $dashboard-stats-item-value-color !defa
   display: flex;
   height: $dashboard-banner-network-plain-container-height;
   justify-content: center;
-  margin: 45px 0 -15px 30px;
+  margin: 0 0 0 30px;
   max-width: 100%;
   padding: 30px 0 30px 60px;
   width: 750px;

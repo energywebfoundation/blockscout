@@ -2,8 +2,9 @@
   <div class="container">
     <div class="dashboard-banner">
       <!-- Graph and legend -->
-      <div class="dashboard-banner-network-graph">
-        <!-- Graph -->
+      <div class="dashboard-banner-network-graph"> 
+        <!-- Graph / Legend-->
+        <!--
         <div class="dashboard-banner-chart">
           <button data-chart-error-message class="alert alert-danger col-12 text-left mt-5" style="display: none;">
             <span><%= gettext("There was a problem loading the chart.") %></span>
@@ -22,12 +23,13 @@
 
                   width="350" height="152" style="display: none;"></canvas>
         </div>
-        <!-- Legend -->
+        -->
         <script>
          numChartData = <%= Enum.reduce(@chart_config, 0, fn (source, acc) ->
                         acc + length(elem(source, 1)) end) %>
          document.documentElement.style.setProperty("--numChartData", numChartData);
         </script>
+        
         <div class="dashboard-banner-chart-legend">
           <%= if Map.has_key?(@chart_config, :market) do %>
 
