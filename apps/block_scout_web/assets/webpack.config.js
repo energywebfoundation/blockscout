@@ -78,6 +78,7 @@ const appJs =
       'blocks': './js/pages/blocks.js',
       'address': './js/pages/address.js',
       'address-transactions': './js/pages/address/transactions.js',
+      'address-token-transfers': './js/pages/address/token_transfers.js',
       'address-coin-balances': './js/pages/address/coin_balances.js',
       'address-internal-transactions': './js/pages/address/internal_transactions.js',
       'address-logs': './js/pages/address/logs.js',
@@ -87,6 +88,7 @@ const appJs =
       'transaction': './js/pages/transaction.js',
       'verification-form': './js/pages/verification_form.js',
       'token-counters': './js/pages/token_counters.js',
+      'token-transfers': './js/pages/token/token_transfers.js',
       'admin-tasks': './js/pages/admin/tasks.js',
       'read-token-contract': './js/pages/read_token_contract.js',
       'smart-contract-helpers': './js/lib/smart_contract/index.js',
@@ -151,7 +153,13 @@ const appJs =
       new MiniCssExtractPlugin({
         filename: '../css/[name].css'
       }),
-      new CopyWebpackPlugin([{ from: 'static/', to: '../' }]),
+      new CopyWebpackPlugin(
+        {
+          patterns: [
+            { from: 'static/', to: '../' }
+          ]
+        }
+      ),
       new ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
       new webpack.DefinePlugin({
         'process.env.SOCKET_ROOT': JSON.stringify(process.env.SOCKET_ROOT)

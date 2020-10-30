@@ -1,7 +1,8 @@
 import $ from 'jquery'
 import ethNetProps from 'eth-net-props'
-import { walletEnabled, getCurrentAccount } from './write.js'
+import { walletEnabled, connectToWallet, getCurrentAccount, hideConnectButton } from './write.js'
 import { openErrorModal, openWarningModal, openSuccessModal, openModalWithMessage } from '../modals.js'
+import '../../pages/address'
 
 const WEI_MULTIPLIER = 10 ** 18
 
@@ -18,6 +19,50 @@ const loadFunctions = (element) => {
     response => $element.html(response)
   )
     .done(function () {
+      const $connectTo = $('[connect-to]')
+      const $connect = $('[connect-metamask]')
+      const $connectedTo = $('[connected-to]')
+      const $reconnect = $('[re-connect-metamask]')
+      const $connectedToAddress = $('[connected-to-address]')
+
+      window.ethereum && window.ethereum.on('accountsChanged', function (accounts) {
+        if (accounts.length === 0) {
+          $connectTo.removeClass('hidden')
+          $connect.removeClass('hidden')
+          $connectedTo.addClass('hidden')
+        } else {
+          $connectTo.addClass('hidden')
+          $connect.removeClass('hidden')
+          $connectedTo.removeClass('hidden')
+          $connectedToAddress.html(`<a href='/address/${accounts[0]}'>${accounts[0]}</a>`)
+        }
+      })
+
+      hideConnectButton().then(({ shouldHide, account }) => {
+        if (shouldHide && account) {
+          $connectTo.addClass('hidden')
+          $connect.removeClass('hidden')
+          $connectedTo.removeClass('hidden')
+          $connectedToAddress.html(`<a href='/address/${account}'>${account}</a>`)
+        } else if (shouldHide) {
+          $connectTo.removeClass('hidden')
+          $connect.addClass('hidden')
+          $connectedTo.addClass('hidden')
+        } else {
+          $connectTo.removeClass('hidden')
+          $connect.removeClass('hidden')
+          $connectedTo.addClass('hidden')
+        }
+      })
+
+      $connect.on('click', () => {
+        connectToWallet()
+      })
+
+      $reconnect.on('click', () => {
+        connectToWallet()
+      })
+
       $('[data-function]').each((_, element) => {
         readWriteFunction(element)
       })
@@ -40,6 +85,7 @@ const readWriteFunction = (element) => {
     if (action === 'read') {
       const url = $form.data('url')
       const $functionName = $form.find('input[name=function_name]')
+      const $methodId = $form.find('input[name=method_id]')
       const $functionInputs = $form.find('input[name=function_input]')
 
       const args = $.map($functionInputs, element => {
@@ -48,6 +94,7 @@ const readWriteFunction = (element) => {
 
       const data = {
         function_name: $functionName.val(),
+        method_id: $methodId.val(),
         args
       }
 

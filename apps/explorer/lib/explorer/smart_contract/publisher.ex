@@ -5,6 +5,7 @@ defmodule Explorer.SmartContract.Publisher do
 
   alias Explorer.Chain
   alias Explorer.Chain.SmartContract
+  alias Explorer.SmartContract.Solidity.CompilerVersion
   alias Explorer.SmartContract.Verifier
 
   @doc """
@@ -37,7 +38,10 @@ defmodule Explorer.SmartContract.Publisher do
         publish_smart_contract(address_hash, params_with_external_libaries, abi)
 
       {:error, error} ->
-        {:error, unverified_smart_contract(address_hash, params_with_external_libaries, error)}
+        {:error, unverified_smart_contract(address_hash, params_with_external_libaries, error, nil)}
+
+      {:error, error, error_message} ->
+        {:error, unverified_smart_contract(address_hash, params_with_external_libaries, error, error_message)}
     end
   end
 
@@ -47,14 +51,15 @@ defmodule Explorer.SmartContract.Publisher do
     Chain.create_smart_contract(attrs, attrs.external_libraries)
   end
 
-  defp unverified_smart_contract(address_hash, params, error) do
+  defp unverified_smart_contract(address_hash, params, error, error_message) do
     attrs = attributes(address_hash, params)
 
     changeset =
       SmartContract.invalid_contract_changeset(
         %SmartContract{address_hash: address_hash},
         attrs,
-        error
+        error,
+        error_message
       )
 
     %{changeset | action: :insert}
@@ -72,10 +77,12 @@ defmodule Explorer.SmartContract.Publisher do
 
     prepared_external_libraries = prepare_external_libraies(params["external_libraries"])
 
+    compiler_version = CompilerVersion.get_strict_compiler_version(params["compiler_version"])
+
     %{
       address_hash: address_hash,
       name: params["name"],
-      compiler_version: params["compiler_version"],
+      compiler_version: compiler_version,
       evm_version: params["evm_version"],
       optimization_runs: params["optimization_runs"],
       optimization: params["optimization"],
