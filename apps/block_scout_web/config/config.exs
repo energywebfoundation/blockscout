@@ -21,6 +21,7 @@ config :block_scout_web, BlockScoutWeb.Chain,
   network_icon: System.get_env("NETWORK_ICON"),
   logo: System.get_env("LOGO"),
   logo_footer: System.get_env("LOGO_FOOTER"),
+  logo_text: System.get_env("LOGO_TEXT"),
   has_emission_funds: false
 
 config :block_scout_web,
@@ -32,13 +33,20 @@ config :block_scout_web,
   },
   other_networks: System.get_env("SUPPORTED_CHAINS"),
   webapp_url: System.get_env("WEBAPP_URL"),
-  api_url: System.get_env("API_URL")
+  api_url: System.get_env("API_URL"),
+  apps_menu: if(System.get_env("APPS_MENU", "false") == "true", do: true, else: false),
+  external_apps: System.get_env("EXTERNAL_APPS"),
+  omni_bridge_mediator: System.get_env("OMNI_BRIDGE_MEDIATOR"),
+  amb_bridge_mediators: System.get_env("AMB_BRIDGE_MEDIATORS"),
+  foreign_json_rpc: System.get_env("FOREIGN_JSON_RPC", ""),
+  gas_price: System.get_env("GAS_PRICE", nil),
+  restricted_list: System.get_env("RESTRICTED_LIST", nil),
+  restricted_list_key: System.get_env("RESTRICTED_LIST_KEY", nil)
 
 config :block_scout_web, BlockScoutWeb.Counters.BlocksIndexedCounter, enabled: true
 
 # Configures the endpoint
 config :block_scout_web, BlockScoutWeb.Endpoint,
-  instrumenters: [BlockScoutWeb.Prometheus.Instrumenter, SpandexPhoenix.Instrumenter],
   url: [
     scheme: System.get_env("BLOCKSCOUT_PROTOCOL") || "http",
     host: System.get_env("BLOCKSCOUT_HOST") || "localhost",
@@ -46,7 +54,7 @@ config :block_scout_web, BlockScoutWeb.Endpoint,
     api_path: System.get_env("API_PATH") || "/"
   ],
   render_errors: [view: BlockScoutWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: BlockScoutWeb.PubSub]
+  pubsub_server: BlockScoutWeb.PubSub
 
 config :block_scout_web, BlockScoutWeb.Tracer,
   service: :block_scout_web,
@@ -119,7 +127,8 @@ config :wobserver,
 
 config :block_scout_web, BlockScoutWeb.ApiRouter,
   writing_enabled: System.get_env("DISABLE_WRITE_API") != "true",
-  reading_enabled: System.get_env("DISABLE_READ_API") != "true"
+  reading_enabled: System.get_env("DISABLE_READ_API") != "true",
+  wobserver_enabled: System.get_env("WOBSERVER_ENABLED") == "true"
 
 config :block_scout_web, BlockScoutWeb.WebRouter, enabled: System.get_env("DISABLE_WEBAPP") != "true"
 

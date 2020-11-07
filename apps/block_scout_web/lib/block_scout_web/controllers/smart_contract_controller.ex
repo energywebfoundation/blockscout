@@ -58,7 +58,8 @@ defmodule BlockScoutWeb.SmartContractController do
         contract_abi: contract_abi,
         implementation_address: implementation_address_hash_string,
         implementation_abi: implementation_abi,
-        contract_type: contract_type
+        contract_type: contract_type,
+        action: action
       )
     else
       :error ->
@@ -93,7 +94,7 @@ defmodule BlockScoutWeb.SmartContractController do
       outputs =
         Reader.query_function(
           address_hash,
-          %{name: params["function_name"], args: params["args"]},
+          %{method_id: params["method_id"], args: params["args"]},
           contract_type
         )
 
@@ -103,6 +104,7 @@ defmodule BlockScoutWeb.SmartContractController do
       |> render(
         "_function_response.html",
         function_name: params["function_name"],
+        method_id: params["method_id"],
         outputs: outputs
       )
     else

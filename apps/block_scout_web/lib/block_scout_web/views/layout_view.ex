@@ -7,7 +7,7 @@ defmodule BlockScoutWeb.LayoutView do
   @issue_url "https://github.com/poanetwork/blockscout/issues/new"
   @default_other_networks [
     %{
-      title: "POA Core",
+      title: "POA",
       url: "https://blockscout.com/poa/core"
     },
     %{
@@ -16,13 +16,8 @@ defmodule BlockScoutWeb.LayoutView do
       test_net?: true
     },
     %{
-      title: "xDai Chain",
-      url: "https://blockscout.com/poa/dai"
-    },
-    %{
-      title: "Kovan Testnet",
-      url: "https://blockscout.com/eth/kovan",
-      test_net?: true
+      title: "xDai",
+      url: "https://blockscout.com/poa/xdai"
     },
     %{
       title: "Ethereum Classic",
@@ -30,7 +25,7 @@ defmodule BlockScoutWeb.LayoutView do
       other?: true
     },
     %{
-      title: "RSK Mainnet",
+      title: "RSK",
       url: "https://blockscout.com/rsk/mainnet",
       other?: true
     }
@@ -45,6 +40,10 @@ defmodule BlockScoutWeb.LayoutView do
   def logo_footer do
     Keyword.get(application_config(), :logo_footer) || Keyword.get(application_config(), :logo) ||
       "/images/blockscout_logo.svg"
+  end
+
+  def logo_text do
+    Keyword.get(application_config(), :logo_text) || nil
   end
 
   def subnetwork_title do
@@ -218,6 +217,21 @@ defmodule BlockScoutWeb.LayoutView do
     |> case do
       :error -> ""
       {:ok, url} -> url
+    end
+  end
+
+  def external_apps_list do
+    if Application.get_env(:block_scout_web, :external_apps) do
+      try do
+        :block_scout_web
+        |> Application.get_env(:external_apps)
+        |> Parser.parse!(%{keys: :atoms!})
+      rescue
+        _ ->
+          []
+      end
+    else
+      []
     end
   end
 
