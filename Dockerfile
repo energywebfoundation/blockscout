@@ -28,7 +28,7 @@ ARG MIX_ENV
 ARG MIX_ENV=dev
 ENV MIX_ENV=$MIX_ENV
 ENV PORT=4000 \
-    BLOCKSCOUT_VERSION="v3.3.0-beta" \
+    BLOCKSCOUT_VERSION="v3.3.3-beta" \
     NETWORK="Energy Web Foundation" \
     SUBNETWORK="Example network" \
     COIN=VT \
