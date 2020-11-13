@@ -1,4 +1,4 @@
-FROM elixir:1.10.3-alpine
+FROM bitwalker/alpine-elixir-phoenix:1.10.3
 
 LABEL MAINTAINER="TSH DEVOPS <devops@tsh.io>"
 
@@ -56,11 +56,36 @@ ENV PORT=4000 \
     TXS_STATS_DAYS_TO_COMPILE_AT_INIT=365 \
     COIN_BALANCE_HISTORY_DAYS=10
 
-ADD . .
+# Cache elixir deps
+ADD mix.exs mix.lock ./
+ADD apps/block_scout_web/mix.exs ./apps/block_scout_web/
+ADD apps/explorer/mix.exs ./apps/explorer/
+ADD apps/ethereum_jsonrpc/mix.exs ./apps/ethereum_jsonrpc/
+ADD apps/indexer/mix.exs ./apps/indexer/
 
 RUN mix do local.hex --force, deps.get, local.rebar --force, deps.compile, compile
 
+ADD . .
+
+ARG COIN
+RUN if [ "$COIN" != "" ]; then sed -i s/"POA"/"${COIN}"/g apps/block_scout_web/priv/gettext/en/LC_MESSAGES/default.po; fi
+
+# Run forderground build and phoenix digest
+RUN mix compile
+
 # Add blockscout npm deps
+RUN cd apps/block_scout_web/assets/ && \
+    npm install && \
+    npm run deploy && \
+    cd -
+
+RUN cd apps/explorer/ && \
+    npm install && \
+    apk update && apk del --force-broken-world alpine-sdk gmp-dev automake libtool inotify-tools autoconf python
+
+# RUN mix do ecto.drop --force, ecto.create, ecto.migrate
+
+
 RUN cd apps/block_scout_web/assets && \
     npm install && \
     node_modules/webpack/bin/webpack.js --mode production
@@ -75,4 +100,4 @@ RUN cd apps/block_scout_web && \
 # Build static assets for deployment
 RUN mix phx.digest
 
-CMD ["mix", "phx.server"]
+#CMD ["mix", "phx.server"]
