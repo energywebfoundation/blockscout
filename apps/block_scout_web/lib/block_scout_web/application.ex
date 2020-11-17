@@ -7,7 +7,7 @@ defmodule BlockScoutWeb.Application do
 
   alias BlockScoutWeb.Counters.BlocksIndexedCounter
   alias BlockScoutWeb.{Endpoint, Prometheus}
-  alias BlockScoutWeb.RealtimeEventHandler
+  alias BlockScoutWeb.{RealtimeEventHandler, StakingEventHandler}
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -18,10 +18,11 @@ defmodule BlockScoutWeb.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      {Phoenix.PubSub.PG2, name: BlockScoutWeb.PubSub, fastlane: Phoenix.Channel.Server},
+      {Phoenix.PubSub, name: BlockScoutWeb.PubSub},
       supervisor(Endpoint, []),
-      supervisor(Absinthe.Subscription, [Endpoint]),
+      {Absinthe.Subscription, Endpoint},
       {RealtimeEventHandler, name: RealtimeEventHandler},
+      {StakingEventHandler, name: StakingEventHandler},
       {BlocksIndexedCounter, name: BlocksIndexedCounter}
     ]
 

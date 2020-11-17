@@ -23,7 +23,6 @@ defmodule Indexer.Block.Fetcher do
     ContractCode,
     InternalTransaction,
     ReplacedTransaction,
-    StakingPools,
     Token,
     TokenBalance,
     TokenInstance,
@@ -307,10 +306,6 @@ defmodule Indexer.Block.Fetcher do
 
   def async_import_token_balances(_), do: :ok
 
-  def async_import_staking_pools do
-    StakingPools.async_fetch()
-  end
-
   def async_import_uncles(%{block_second_degree_relations: block_second_degree_relations}) do
     UncleBlock.async_fetch_blocks(block_second_degree_relations)
   end
@@ -434,7 +429,7 @@ defmodule Indexer.Block.Fetcher do
     {:ok, beneficiary_address} = Chain.string_to_address_hash(beneficiary.address_hash)
 
     "0x" <> minted_hex = beneficiary.reward
-    {minted, _} = Integer.parse(minted_hex, 16)
+    {minted, _} = if minted_hex == "", do: {0, ""}, else: Integer.parse(minted_hex, 16)
 
     if block_miner_payout_address && beneficiary_address.bytes == block_miner_payout_address.bytes do
       gas_payment = gas_payment(beneficiary, transactions_by_block_number)

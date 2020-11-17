@@ -1,16 +1,18 @@
 defmodule BlockScoutWeb.SmartContractView do
   use BlockScoutWeb, :view
 
+  alias Explorer.Chain
+
   def queryable?(inputs) when not is_nil(inputs), do: Enum.any?(inputs)
 
   def queryable?(inputs) when is_nil(inputs), do: false
 
-  def writeable?(function) when not is_nil(function),
+  def writable?(function) when not is_nil(function),
     do:
       !constructor?(function) && !event?(function) &&
         (payable?(function) || nonpayable?(function))
 
-  def writeable?(function) when is_nil(function), do: false
+  def writable?(function) when is_nil(function), do: false
 
   def outputs?(outputs) when not is_nil(outputs), do: Enum.any?(outputs)
 
