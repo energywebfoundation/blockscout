@@ -78,6 +78,7 @@
               <%= gettext("Accounts") %>
             <% end %>
           </li>
+          <!-- we decided to hide tokens tab in 3.4.0, no more changes in this block since then
           <%= if Application.get_env(:block_scout_web, :omni_bridge_mediator) && Application.get_env(:block_scout_web, :omni_bridge_mediator) != "" do %>
             <li class="nav-item dropdown">
               <a href="#" role="button" id="navbarTokensDropdown" class="nav-link topnav-nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -109,6 +110,7 @@
               <% end %>
             </li>
           <% end %>
+          -->
         <% end %>
         <%= if Application.get_env(:block_scout_web, BlockScoutWeb.ApiRouter)[:reading_enabled] || Application.get_env(:block_scout_web, :api_url) do %>
           <li class="nav-item dropdown">
