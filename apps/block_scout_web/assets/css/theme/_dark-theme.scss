@@ -1030,8 +1030,13 @@ $dark-stakes-banned-background: #3e314c;
 	}
 
 	.bs-label.omni {
-		background-color: $labels-dark;
+		background: #6ca1e2
 	}
+
+    .bs-label.validator,
+    .bs-label.destination-eth {
+        background-color: $labels-dark;
+    }
 
 	.dropdown-item {
 		.external-link-icon {
@@ -1100,6 +1105,11 @@ $dark-stakes-banned-background: #3e314c;
 	}
 	.custom-power-input {
 		border-color: $dark-primary;
+	}
+	.stakes-btn-close-alert {
+		path {
+			fill: #fff;
+		  }
 	}
 }
 
