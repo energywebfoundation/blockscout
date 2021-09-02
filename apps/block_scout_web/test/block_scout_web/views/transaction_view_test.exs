@@ -110,7 +110,7 @@ defmodule BlockScoutWeb.TransactionViewTest do
         |> insert()
         |> with_block(block)
 
-      assert "2" == TransactionView.confirmations(transaction, block_height: block.number + 1)
+      assert "1" == TransactionView.confirmations(transaction, block_height: block.number + 1)
     end
   end
 

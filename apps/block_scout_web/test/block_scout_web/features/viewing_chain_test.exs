@@ -82,11 +82,7 @@ defmodule BlockScoutWeb.ViewingChainTest do
 
   describe "viewing transactions" do
     test "search for transactions", %{session: session} do
-      block = insert(:block)
-
-      transaction =
-        insert(:transaction)
-        |> with_block(block)
+      transaction = insert(:transaction)
 
       start_supervised!(AddressesCounter)
       AddressesCounter.consolidate()

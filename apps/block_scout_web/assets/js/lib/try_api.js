@@ -44,7 +44,7 @@ function handleSuccess (query, xhr, clickedButton) {
   const requestUrl = $(`[data-selector="${module}-${action}-request-url"]`)[0]
   const code = $(`[data-selector="${module}-${action}-server-response-code"]`)[0]
   const body = $(`[data-selector="${module}-${action}-server-response-body"]`)[0]
-  const url = composeRequestUrl(escapeHtml(query))
+  const url = composeRequestUrl(query)
 
   curl.innerHTML = composeCurlCommand(url)
   requestUrl.innerHTML = url
@@ -54,18 +54,6 @@ function handleSuccess (query, xhr, clickedButton) {
   $(`[data-selector="${module}-${action}-btn-try-api-clear"]`).show()
   clickedButton.html(clickedButton.data('original-text'))
   clickedButton.prop('disabled', false)
-}
-
-function escapeHtml (text) {
-  var map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  }
-
-  return text.replace(/[&<>"']/g, function (m) { return map[m] })
 }
 
 // Show 'Try it out' UI for a module/action.

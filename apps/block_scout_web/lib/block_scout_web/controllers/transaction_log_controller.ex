@@ -3,7 +3,7 @@ defmodule BlockScoutWeb.TransactionLogController do
 
   import BlockScoutWeb.Chain, only: [paging_options: 1, next_page_params: 3, split_list_by_page: 1]
 
-  alias BlockScoutWeb.{AccessHelpers, TransactionController, TransactionLogView}
+  alias BlockScoutWeb.{AccessHelpers, TransactionLogView, TransactionView}
   alias Explorer.{Chain, Market}
   alias Explorer.ExchangeRates.Token
   alias Phoenix.View
@@ -60,13 +60,22 @@ defmodule BlockScoutWeb.TransactionLogController do
       )
     else
       {:restricted_access, _} ->
-        TransactionController.set_not_found_view(conn, transaction_hash_string)
+        conn
+        |> put_status(404)
+        |> put_view(TransactionView)
+        |> render("not_found.html", transaction_hash: transaction_hash_string)
 
       :error ->
-        TransactionController.set_invalid_view(conn, transaction_hash_string)
+        conn
+        |> put_status(422)
+        |> put_view(TransactionView)
+        |> render("invalid.html", transaction_hash: transaction_hash_string)
 
       {:error, :not_found} ->
-        TransactionController.set_not_found_view(conn, transaction_hash_string)
+        conn
+        |> put_status(404)
+        |> put_view(TransactionView)
+        |> render("not_found.html", transaction_hash: transaction_hash_string)
     end
   end
 
@@ -97,13 +106,22 @@ defmodule BlockScoutWeb.TransactionLogController do
       )
     else
       {:restricted_access, _} ->
-        TransactionController.set_not_found_view(conn, transaction_hash_string)
+        conn
+        |> put_status(404)
+        |> put_view(TransactionView)
+        |> render("not_found.html", transaction_hash: transaction_hash_string)
 
       :error ->
-        TransactionController.set_invalid_view(conn, transaction_hash_string)
+        conn
+        |> put_status(422)
+        |> put_view(TransactionView)
+        |> render("invalid.html", transaction_hash: transaction_hash_string)
 
       {:error, :not_found} ->
-        TransactionController.set_not_found_view(conn, transaction_hash_string)
+        conn
+        |> put_status(404)
+        |> put_view(TransactionView)
+        |> render("not_found.html", transaction_hash: transaction_hash_string)
     end
   end
 end

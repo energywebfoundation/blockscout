@@ -1,10 +1,6 @@
 import $ from 'jquery'
-import { Chart, Filler, LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip } from 'chart.js'
-import 'chartjs-adapter-moment'
+import Chart from 'chart.js'
 import humps from 'humps'
-
-Chart.defaults.font.family = 'Nunito, "Helvetica Neue", Arial, sans-serif,"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
-Chart.register(Filler, LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip)
 
 export function createCoinBalanceHistoryChart (el) {
   const $chartContainer = $('[data-chart-container]')
@@ -36,40 +32,30 @@ export function createCoinBalanceHistoryChart (el) {
           datasets: [{
             label: 'coin balance',
             data: coinBalanceHistoryData,
-            lineTension: 0,
-            cubicInterpolationMode: 'monotone',
-            fill: true
+            lineTension: 0
           }]
         },
-        plugins: {
+        options: {
           legend: {
             display: false
-          }
-        },
-        interaction: {
-          intersect: false,
-          mode: 'index'
-        },
-        options: {
+          },
           scales: {
-            x: {
+            xAxes: [{
               type: 'time',
               time: {
                 unit: 'day',
-                tooltipFormat: 'YYYY-MM-DD',
                 stepSize: stepSize
               }
-            },
-            y: {
-              type: 'linear',
+            }],
+            yAxes: [{
               ticks: {
                 beginAtZero: true
               },
-              title: {
+              scaleLabel: {
                 display: true,
                 labelString: window.localized.Ether
               }
-            }
+            }]
           }
         }
       })

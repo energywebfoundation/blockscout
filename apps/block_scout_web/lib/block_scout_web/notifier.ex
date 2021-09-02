@@ -4,13 +4,7 @@ defmodule BlockScoutWeb.Notifier do
   """
 
   alias Absinthe.Subscription
-
-  alias BlockScoutWeb.{
-    AddressContractVerificationViaFlattenedCodeView,
-    AddressContractVerificationViaJsonView,
-    Endpoint
-  }
-
+  alias BlockScoutWeb.{AddressContractVerificationView, Endpoint}
   alias Explorer.{Chain, Market, Repo}
   alias Explorer.Chain.{Address, InternalTransaction, TokenTransfer, Transaction}
   alias Explorer.Chain.Supply.RSK
@@ -46,8 +40,6 @@ defmodule BlockScoutWeb.Notifier do
   def handle_event(
         {:chain_event, :contract_verification_result, :on_demand, {address_hash, contract_verification_result, conn}}
       ) do
-    verification_from_json_upload? = Map.has_key?(conn.params, "file")
-
     contract_verification_result =
       case contract_verification_result do
         {:ok, _} = result ->
@@ -63,16 +55,8 @@ defmodule BlockScoutWeb.Notifier do
                 []
             end
 
-          view =
-            if verification_from_json_upload? do
-              AddressContractVerificationViaJsonView
-            else
-              AddressContractVerificationViaFlattenedCodeView
-            end
-
           result =
-            view
-            |> View.render_to_string("new.html",
+            View.render_to_string(AddressContractVerificationView, "new.html",
               changeset: changeset,
               compiler_versions: compiler_versions,
               evm_versions: CodeCompiler.allowed_evm_versions(),

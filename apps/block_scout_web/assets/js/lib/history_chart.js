@@ -1,48 +1,10 @@
 import $ from 'jquery'
-import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip } from 'chart.js'
-import 'chartjs-adapter-moment'
+import Chart from 'chart.js'
 import humps from 'humps'
 import numeral from 'numeral'
 import moment from 'moment'
 import { formatUsdValue } from '../lib/currency'
 import sassVariables from '../../css/app.scss'
-
-Chart.defaults.font.family = 'Nunito, "Helvetica Neue", Arial, sans-serif,"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
-Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip)
-
-const grid = {
-  display: false,
-  drawBorder: false,
-  drawOnChartArea: false
-}
-
-function xAxe (fontColor) {
-  return {
-    grid: grid,
-    type: 'time',
-    time: {
-      unit: 'day',
-      tooltipFormat: 'YYYY-MM-DD',
-      stepSize: 14
-    },
-    ticks: {
-      color: fontColor
-    }
-  }
-}
-
-const padding = {
-  left: 20,
-  right: 20
-}
-
-const legend = {
-  display: false
-}
-
-function formatValue (val) {
-  return `${numeral(val).format('0,0')}`
-}
 
 const config = {
   type: 'line',
@@ -52,63 +14,81 @@ const config = {
   },
   options: {
     layout: {
-      padding: padding
+      padding: {
+        left: 20,
+        right: 20
+      }
     },
-    interaction: {
-      intersect: false,
-      mode: 'index'
+    legend: {
+      display: false
     },
     scales: {
-      x: xAxe(sassVariables.dashboardBannerChartAxisFontColor),
-      price: {
-        position: 'left',
-        grid: grid,
+      xAxes: [{
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        type: 'time',
+        time: {
+          unit: 'day',
+          stepSize: 14
+        },
+        ticks: {
+          fontColor: sassVariables.dashboardBannerChartAxisFontColor
+        }
+      }],
+      yAxes: [{
+        id: 'price',
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
         ticks: {
           beginAtZero: true,
           callback: (value, _index, _values) => `$${numeral(value).format('0,0.00')}`,
           maxTicksLimit: 4,
-          color: sassVariables.dashboardBannerChartAxisFontColor
+          fontColor: sassVariables.dashboardBannerChartAxisFontColor
         }
-      },
-      marketCap: {
-        position: 'right',
-        grid: grid,
+      }, {
+        id: 'marketCap',
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
         ticks: {
           callback: (_value, _index, _values) => '',
           maxTicksLimit: 6,
-          drawOnChartArea: false,
-          color: sassVariables.dashboardBannerChartAxisFontColor
+          drawOnChartArea: false
         }
-      },
-      numTransactions: {
+      }, {
+        id: 'numTransactions',
         position: 'right',
-        grid: grid,
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
         ticks: {
           beginAtZero: true,
-          callback: (value, _index, _values) => formatValue(value),
+          callback: (value, _index, _values) => `${numeral(value).format('0,0')}`,
           maxTicksLimit: 4,
-          color: sassVariables.dashboardBannerChartAxisFontColor
+          fontColor: sassVariables.dashboardBannerChartAxisFontColor
         }
-      }
+      }]
     },
-    plugins: {
-      legend: legend,
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        callbacks: {
-          label: (context) => {
-            const { label } = context.dataset
-            const { formattedValue, parsed } = context
-            if (context.dataset.yAxisID === 'price') {
-              return `${label}: ${formatUsdValue(parsed.y)}`
-            } else if (context.dataset.yAxisID === 'marketCap') {
-              return `${label}: ${formatUsdValue(parsed.y)}`
-            } else if (context.dataset.yAxisID === 'numTransactions') {
-              return `${label}: ${formattedValue}`
-            } else {
-              return formattedValue
-            }
+    tooltips: {
+      mode: 'index',
+      intersect: false,
+      callbacks: {
+        label: ({ datasetIndex, yLabel }, { datasets }) => {
+          const label = datasets[datasetIndex].label
+          if (datasets[datasetIndex].yAxisID === 'price') {
+            return `${label}: ${formatUsdValue(yLabel)}`
+          } else if (datasets[datasetIndex].yAxisID === 'marketCap') {
+            return `${label}: ${formatUsdValue(yLabel)}`
+          } else if (datasets[datasetIndex].yAxisID === 'numTransactions') {
+            return `${label}: ${yLabel}`
+          } else {
+            return yLabel
           }
         }
       }
@@ -171,7 +151,11 @@ const mcapLineColor = sassVariables.dashboardLineColorMarket
 
 class MarketHistoryChart {
   constructor (el, availableSupply, _marketHistoryData, dataConfig) {
-    const axes = config.options.scales
+    const axes = config.options.scales.yAxes.reduce(function (solution, elem) {
+      solution[elem.id] = elem
+      return solution
+    },
+    {})
 
     let priceActivated = true
     let marketCapActivated = true
@@ -181,7 +165,6 @@ class MarketHistoryChart {
       yAxisID: 'price',
       data: [],
       fill: false,
-      cubicInterpolationMode: 'monotone',
       pointRadius: 0,
       backgroundColor: priceLineColor,
       borderColor: priceLineColor
@@ -198,7 +181,6 @@ class MarketHistoryChart {
       yAxisID: 'marketCap',
       data: [],
       fill: false,
-      cubicInterpolationMode: 'monotone',
       pointRadius: 0,
       backgroundColor: mcapLineColor,
       borderColor: mcapLineColor
@@ -214,7 +196,6 @@ class MarketHistoryChart {
       label: window.localized['Tx/day'],
       yAxisID: 'numTransactions',
       data: [],
-      cubicInterpolationMode: 'monotone',
       fill: false,
       pointRadius: 0,
       backgroundColor: sassVariables.dashboardLineColorTransactions,
@@ -282,15 +263,16 @@ export function createMarketHistoryChart (el) {
             break
           }
           case 'transaction': {
-            const txsHistoryData = JSON.parse(data.history_data)
+            const transactionHistory = JSON.parse(data.history_data)
 
             $(el).show()
-            chart.updateTransactionHistory(txsHistoryData)
+            chart.updateTransactionHistory(transactionHistory)
             break
           }
         }
       })
       .fail(() => {
+        $(el).hide()
         $chartError.show()
       })
   })

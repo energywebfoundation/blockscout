@@ -51,8 +51,6 @@ defmodule BlockScoutWeb.AddressReadProxyControllerTest do
 
       insert(:smart_contract, address_hash: contract_address.hash)
 
-      get_eip1967_implementation()
-
       conn = get(conn, address_read_proxy_path(BlockScoutWeb.Endpoint, :index, Address.checksum(contract_address.hash)))
 
       assert html_response(conn, 200)
@@ -78,20 +76,5 @@ defmodule BlockScoutWeb.AddressReadProxyControllerTest do
 
       assert html_response(conn, 404)
     end
-  end
-
-  def get_eip1967_implementation do
-    expect(EthereumJSONRPC.Mox, :json_rpc, fn %{
-                                                id: 0,
-                                                method: "eth_getStorageAt",
-                                                params: [
-                                                  _,
-                                                  "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
-                                                  "latest"
-                                                ]
-                                              },
-                                              _options ->
-      {:ok, "0x0000000000000000000000000000000000000000000000000000000000000000"}
-    end)
   end
 end

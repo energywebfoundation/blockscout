@@ -1,9 +1,6 @@
 import $ from 'jquery'
-import { ArcElement, Chart, DoughnutController } from 'chart.js'
+import Chart from 'chart.js'
 import { openErrorModal, openSuccessModal, openWarningModal } from '../../lib/modals'
-
-Chart.defaults.font.family = 'Nunito, "Helvetica Neue", Arial, sans-serif,"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
-Chart.register(ArcElement, DoughnutController)
 
 export async function makeContractCall (call, store, gasLimit, callbackFunc) {
   const state = store.getState()
@@ -72,8 +69,7 @@ export async function makeContractCall (call, store, gasLimit, callbackFunc) {
             callbackFunc('Transaction reverted')
           }
         } else {
-          const msg = `Your transaction wasn't processed in ${maxWaitBlocks} blocks. Please, try again with the increased gas price or fixed nonce (use Reset Account feature of MetaMask).`
-          callbackFunc(msg)
+          callbackFunc(`Your transaction wasn't processed in ${maxWaitBlocks} blocks. Please, try again with the increased gas price or fixed nonce (use Reset Account feature of MetaMask).`)
         }
       } catch (e) {
         callbackFunc(e.message)
@@ -102,11 +98,12 @@ export function setupChart ($canvas, self, total) {
       }]
     },
     options: {
-      cutout: '80%',
-      plugins: {
-        legend: {
-          display: false
-        }
+      cutoutPercentage: 80,
+      legend: {
+        display: false
+      },
+      tooltips: {
+        enabled: false
       }
     }
   })
