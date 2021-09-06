@@ -3,7 +3,6 @@ defmodule BlockScoutWeb.AddressContractController do
   use BlockScoutWeb, :controller
 
   alias BlockScoutWeb.AccessHelpers
-  alias BlockScoutWeb.AddressContractVerificationController, as: VerificationController
   alias Explorer.{Chain, Market}
   alias Explorer.ExchangeRates.Token
   alias Indexer.Fetcher.CoinBalanceOnDemand
@@ -20,9 +19,8 @@ defmodule BlockScoutWeb.AddressContractController do
     ]
 
     with {:ok, address_hash} <- Chain.string_to_address_hash(address_hash_string),
-         {:ok, false} <- AccessHelpers.restricted_access?(address_hash_string, params),
-         _ <- VerificationController.check_and_verify(address_hash_string),
-         {:ok, address} <- Chain.find_contract_address(address_hash, address_options, true) do
+         {:ok, address} <- Chain.find_contract_address(address_hash, address_options, true),
+         {:ok, false} <- AccessHelpers.restricted_access?(address_hash_string, params) do
       render(
         conn,
         "index.html",

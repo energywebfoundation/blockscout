@@ -34,5 +34,7 @@ defmodule Explorer.Chain.Cache.BlockNumber do
       :min -> Chain.fetch_min_block_number()
       :max -> Chain.fetch_max_block_number()
     end
+  rescue
+    _e -> 0
   end
 end

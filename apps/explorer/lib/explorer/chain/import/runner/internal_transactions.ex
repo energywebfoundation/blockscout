@@ -214,10 +214,7 @@ defmodule Explorer.Chain.Import.Runner.InternalTransactions do
   end
 
   defp acquire_blocks(repo, changes_list) do
-    block_numbers =
-      changes_list
-      |> Enum.map(& &1.block_number)
-      |> Enum.dedup()
+    block_numbers = Enum.map(changes_list, & &1.block_number)
 
     query =
       from(
@@ -268,7 +265,7 @@ defmodule Explorer.Chain.Import.Runner.InternalTransactions do
     # - there are internal txs with a different block number than their transactions
     # Returns block numbers where any of these issues is found
 
-    # Note: the case "# - there are no transactions for some internal transactions" was removed because it caused the issue https://github.com/blockscout/blockscout/issues/3367
+    # Note: the case "# - there are no transactions for some internal transactions" was removed because it caused the issue https://github.com/poanetwork/blockscout/issues/3367
     # when the last block with transactions loses consensus in endless loop. In order to return this case:
     # common_tuples = MapSet.intersection(required_tuples, candidate_tuples) #should be added
     # |> MapSet.difference(internal_transactions_tuples) should be replaced with |> MapSet.difference(common_tuples)

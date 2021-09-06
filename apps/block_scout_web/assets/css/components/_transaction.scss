@@ -51,9 +51,3 @@
 		width: 60%;
 	}
 }
-
-.text-nowrap-small-screen {
-	@include media-breakpoint-up(sm) {
-		white-space: nowrap !important;
-	}
-}

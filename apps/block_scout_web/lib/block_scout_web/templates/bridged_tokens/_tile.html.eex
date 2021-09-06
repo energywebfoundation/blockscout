@@ -1,11 +1,11 @@
-<tr data-identifier-hash="<%= @token.contract_address_hash %>">
+<tr>
   <td class="stakes-td">
       <!-- incremented number by order in the list -->
       <span class="color-lighten">
         <%= @index %>
       </span>
   </td>
-  <td class="stakes-td token-name">
+  <td class="stakes-td">
     <% token = token_display_name(@token) %>
     <div class="centered-container">
       <div>
@@ -54,7 +54,7 @@
       use_custom_tooltip: false
     %>
   </td>
-  <td class="stakes-td token-total-supply">
+  <td class="stakes-td">
     <%= if decimals?(@token) do %>
       <span data-test="token_supply"><%= format_according_to_decimals(@token.total_supply, @token.decimals) %></span>
     <% else %>

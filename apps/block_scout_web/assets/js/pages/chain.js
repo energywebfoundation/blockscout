@@ -124,11 +124,6 @@ function baseReducer (state = initialState, action) {
         })
       }
     }
-    case 'TRANSACTION_BATCH_EXPANDED': {
-      return Object.assign({}, state, {
-        transactionsBatch: []
-      })
-    }
     case 'RECEIVED_UPDATED_TRANSACTION_STATS': {
       return Object.assign({}, state, {
         transactionStats: action.msg.stats
@@ -172,7 +167,7 @@ const elements = {
     load () {
       chart = window.dashboardChart
     },
-    render (_$el, state, oldState) {
+    render ($el, state, oldState) {
       if (!chart || (oldState.availableSupply === state.availableSupply && oldState.marketHistoryData === state.marketHistoryData) || !state.availableSupply) return
 
       chart.updateMarketHistory(state.availableSupply, state.marketHistoryData)
@@ -344,17 +339,6 @@ if ($chainDetailsPage.length) {
     type: 'RECEIVED_UPDATED_TRANSACTION_STATS',
     msg: msg
   }))
-
-  const $txReloadButton = $('[data-selector="reload-transactions-button"]')
-  const $channelBatching = $('[data-selector="channel-batching-message"]')
-  $txReloadButton.on('click', (event) => {
-    event.preventDefault()
-    loadTransactions(store)
-    $channelBatching.hide()
-    store.dispatch({
-      type: 'TRANSACTION_BATCH_EXPANDED'
-    })
-  })
 }
 
 function loadTransactions (store) {

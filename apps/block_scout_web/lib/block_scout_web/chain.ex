@@ -182,7 +182,7 @@ defmodule BlockScoutWeb.Chain do
   def paging_options(%{"inserted_at" => inserted_at_string, "hash" => hash_string}) do
     with {:ok, inserted_at, _} <- DateTime.from_iso8601(inserted_at_string),
          {:ok, hash} <- string_to_transaction_hash(hash_string) do
-      [paging_options: %{@default_paging_options | key: {inserted_at, hash}, is_pending_tx: true}]
+      [paging_options: %{@default_paging_options | key: {inserted_at, hash}}]
     else
       _ ->
         [paging_options: @default_paging_options]
@@ -202,28 +202,6 @@ defmodule BlockScoutWeb.Chain do
     case Integer.parse(formatted_number) do
       {number, ""} -> {:ok, number}
       _ -> {:error, :invalid}
-    end
-  end
-
-  def param_to_block_timestamp(timestamp_string) when is_binary(timestamp_string) do
-    case Integer.parse(timestamp_string) do
-      {temstamp_int, ""} ->
-        timestamp =
-          temstamp_int
-          |> DateTime.from_unix!(:second)
-
-        {:ok, timestamp}
-
-      _ ->
-        {:error, :invalid_timestamp}
-    end
-  end
-
-  def param_to_block_closest(closest) when is_binary(closest) do
-    case closest do
-      "before" -> {:ok, :before}
-      "after" -> {:ok, :after}
-      _ -> {:error, :invalid_closest}
     end
   end
 

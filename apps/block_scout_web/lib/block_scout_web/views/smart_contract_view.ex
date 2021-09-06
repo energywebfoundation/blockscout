@@ -105,9 +105,6 @@ defmodule BlockScoutWeb.SmartContractView do
   end
 
   def values_only(value, type, components) when is_list(value) do
-    max_size = Enum.at(Tuple.to_list(Application.get_env(:block_scout_web, :max_size_to_show_array_as_is)), 0)
-    is_too_long = length(value) > max_size
-
     cond do
       String.starts_with?(type, "tuple") ->
         tuple_types =
@@ -120,7 +117,7 @@ defmodule BlockScoutWeb.SmartContractView do
           |> tuple_array_to_array(tuple_types)
           |> Enum.join(", ")
 
-        wrap_output(render_array_value(values), is_too_long)
+        render_array_value(values)
 
       String.starts_with?(type, "address") ->
         values =
@@ -128,7 +125,7 @@ defmodule BlockScoutWeb.SmartContractView do
           |> Enum.map(&binary_to_utf_string(&1))
           |> Enum.join(", ")
 
-        wrap_output(render_array_value(values), is_too_long)
+        render_array_value(values)
 
       String.starts_with?(type, "bytes") ->
         values =
@@ -136,14 +133,14 @@ defmodule BlockScoutWeb.SmartContractView do
           |> Enum.map(&binary_to_utf_string(&1))
           |> Enum.join(", ")
 
-        wrap_output(render_array_value(values), is_too_long)
+        render_array_value(values)
 
       true ->
         values =
           value
           |> Enum.join(", ")
 
-        wrap_output(render_array_value(values), is_too_long)
+        render_array_value(values)
     end
   end
 
@@ -153,36 +150,26 @@ defmodule BlockScoutWeb.SmartContractView do
       |> tuple_to_array(type)
       |> Enum.join(", ")
 
-    max_size = Enum.at(Tuple.to_list(Application.get_env(:block_scout_web, :max_size_to_show_array_as_is)), 0)
-
-    wrap_output(values, tuple_size(value) > max_size)
+    values
   end
 
   def values_only(value, type, _components) when type in [:address, "address", "address payable"] do
     {:ok, address} = HashAddress.cast(value)
-    wrap_output(to_string(address))
+    to_string(address)
   end
 
-  def values_only(value, "string", _components), do: wrap_output(value)
+  def values_only(value, "string", _components), do: value
 
-  def values_only(value, :string, _components), do: wrap_output(value)
+  def values_only(value, :string, _components), do: value
 
-  def values_only(value, :bytes, _components), do: wrap_output(value)
+  def values_only(value, :bytes, _components), do: value
 
-  def values_only(value, "bool", _components), do: wrap_output(to_string(value))
+  def values_only(value, "bool", _components), do: to_string(value)
 
-  def values_only(value, :bool, _components), do: wrap_output(to_string(value))
+  def values_only(value, :bool, _components), do: to_string(value)
 
   def values_only(value, _type, _components) do
-    wrap_output(binary_to_utf_string(value))
-  end
-
-  def wrap_output(value, is_too_long \\ false) do
-    if is_too_long do
-      "<details class=\"py-2 word-break-all\"><summary>Click to view</summary>#{value}</details>"
-    else
-      "<div class=\"py-2 word-break-all\">#{value}</div>"
-    end
+    binary_to_utf_string(value)
   end
 
   defp tuple_array_to_array(value, type) do
