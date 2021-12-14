@@ -1,7 +1,7 @@
 const path = require('path')
 const TerserJSPlugin = require('terser-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { ContextReplacementPlugin } = require('webpack')
 const glob = require('glob')
@@ -32,10 +32,9 @@ const jsOptimizationParams = {
   parallel: true
 }
 
-const awesompleteJs = {
+const dropzoneJs = {
   entry: {
-    awesomplete: './js/lib/awesomplete.js',
-    'awesomplete-util': './js/lib/awesomplete-util.js',
+    dropzone: './js/lib/dropzone.js',
   },
   output: {
     filename: '[name].min.js',
@@ -48,7 +47,7 @@ const awesompleteJs = {
         use: [
           MiniCssExtractPlugin.loader,
           {
-            loader: "css-loader",
+            loader: 'css-loader',
           }
         ]
       }
@@ -58,12 +57,7 @@ const awesompleteJs = {
     minimizer: [
       new TerserJSPlugin(jsOptimizationParams),
     ]
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: '../css/awesomplete.css'
-    })
-  ]
+  }
 }
 
 const appJs =
@@ -96,14 +90,23 @@ const appJs =
       'try-eth-api': './js/lib/try_eth_api.js',
       'async-listing-load': './js/lib/async_listing_load',
       'non-critical': './css/non-critical.scss',
-      'tokens': './js/pages/token/search.js'
+      'main-page': './css/main-page.scss',
+      'tokens': './js/pages/token/search.js',
+      'ad': './js/lib/ad.js',
+      'text_ad': './js/lib/text_ad.js',
+      'banner': './js/lib/banner.js',
+      'autocomplete': './js/lib/autocomplete.js',
+      'search-results': './js/pages/search-results/search.js',
+      'token-overview': './js/pages/token/overview.js',
+      'export-csv': './css/export-csv.scss',
+      'datepicker': './js/lib/datepicker.js'
     },
     output: {
       filename: '[name].js',
       path: path.resolve(__dirname, '../priv/static/js')
     },
     optimization: {
-      minimizer: [new TerserJSPlugin(jsOptimizationParams), new OptimizeCSSAssetsPlugin({})],
+      minimizer: [new TerserJSPlugin(jsOptimizationParams), new CssMinimizerPlugin()],
     },
     module: {
       rules: [
@@ -183,4 +186,4 @@ const appJs =
 
 const viewScripts = glob.sync('./js/view_specific/**/*.js').map(transpileViewScript)
 
-module.exports = viewScripts.concat(appJs, awesompleteJs)
+module.exports = viewScripts.concat(appJs, dropzoneJs)

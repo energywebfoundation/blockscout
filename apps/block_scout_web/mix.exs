@@ -20,15 +20,10 @@ defmodule BlockScoutWeb.Mixfile do
       lockfile: "../../mix.lock",
       package: package(),
       preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test,
         credo: :test,
         dialyzer: :test
       ],
       start_permanent: Mix.env() == :prod,
-      test_coverage: [tool: ExCoveralls],
       version: "0.0.1"
     ]
   end
@@ -70,10 +65,10 @@ defmodule BlockScoutWeb.Mixfile do
       {:bypass, "~> 1.0", only: :test},
       # To add (CORS)(https://www.w3.org/TR/cors/)
       {:cors_plug, "~> 2.0"},
-      {:credo, "~> 1.1", only: :test, runtime: false},
+      {:credo, "~> 1.5", only: :test, runtime: false},
       # For Absinthe to load data in batches
       {:dataloader, "~> 1.0.0"},
-      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       # Need until https://github.com/absinthe-graphql/absinthe_relay/pull/125 is released, then can be removed
       # The current `absinthe_relay` is compatible though as shown from that PR
       {:ecto, "~> 3.3", override: true},
@@ -82,25 +77,24 @@ defmodule BlockScoutWeb.Mixfile do
       {:ex_cldr_units, "~> 2.5"},
       {:cldr_utils, "~> 2.3"},
       {:ex_machina, "~> 2.1", only: [:test]},
-      # Code coverage
-      {:excoveralls, "~> 0.13.3"},
       {:explorer, in_umbrella: true},
       {:exvcr, "~> 0.10", only: :test},
+      {:file_info, "~> 0.0.4"},
       # HTML CSS selectors for Phoenix controller tests
-      {:floki, "~> 0.20.1", only: :test},
+      {:floki, "~> 0.31"},
       {:flow, "~> 0.12"},
-      {:gettext, "~> 0.16.1"},
+      {:gettext, "~> 0.18.2"},
       {:httpoison, "~> 1.6"},
       {:indexer, in_umbrella: true, runtime: false},
       # JSON parser and generator
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.2.2"},
       {:junit_formatter, ">= 0.0.0", only: [:test], runtime: false},
       # Log errors and application output to separate files
       {:logger_file_backend, "~> 0.0.10"},
       {:math, "~> 0.3.0"},
       {:mock, "~> 0.3.0", only: [:test], runtime: false},
       {:number, "~> 1.0.1"},
-      {:phoenix, "== 1.5.6"},
+      {:phoenix, "== 1.5.13"},
       {:phoenix_ecto, "~> 4.1"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.2", only: [:dev]},
@@ -109,7 +103,7 @@ defmodule BlockScoutWeb.Mixfile do
       {:plug_cowboy, "~> 2.2"},
       # Waiting for the Pretty Print to be implemented at the Jason lib
       # https://github.com/michalmuskala/jason/issues/15
-      {:poison, "~> 3.1"},
+      {:poison, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       # For compatibility with `prometheus_process_collector`, which hasn't been updated yet
       {:prometheus, "~> 4.0", override: true},
@@ -127,11 +121,11 @@ defmodule BlockScoutWeb.Mixfile do
       {:spandex_datadog, "~> 1.0"},
       # `:spandex` tracing of `:phoenix`
       {:spandex_phoenix, "~> 1.0"},
-      {:timex, "~> 3.6"},
-      {:wallaby, "~> 0.26", only: :test, runtime: false},
+      {:timex, "~> 3.7.1"},
+      {:wallaby, "~> 0.28", only: :test, runtime: false},
       # `:cowboy` `~> 2.0` and Phoenix 1.4 compatibility
+      {:websocket_client, "== 1.3.0"},
       {:wobserver, "~> 0.2.0", github: "poanetwork/wobserver", branch: "support-https"},
-      {:phoenix_form_awesomplete, "~> 0.1.4"},
       {:ex_json_schema, "~> 0.6.2"}
     ]
   end
@@ -161,7 +155,7 @@ defmodule BlockScoutWeb.Mixfile do
     [
       maintainers: ["POA Networks Ltd."],
       licenses: ["GPL 3.0"],
-      links: %{"GitHub" => "https://github.com/poanetwork/blockscout"}
+      links: %{"GitHub" => "https://github.com/blockscout/blockscout"}
     ]
   end
 end
