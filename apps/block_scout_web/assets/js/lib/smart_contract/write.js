@@ -1,7 +1,7 @@
 import Web3 from 'web3'
-import { props } from 'eth-net-props'
+import $ from 'jquery'
 import { openErrorModal, openWarningModal, openSuccessModal, openModalWithMessage } from '../modals'
-import { getContractABI, getMethodInputs, prepareMethodArgs } from './common_helpers'
+import { compareChainIDs, formatError, formatTitleAndError, getContractABI, getCurrentAccount, getMethodInputs, prepareMethodArgs } from './common_helpers'
 
 export const walletEnabled = () => {
   return new Promise((resolve) => {
@@ -54,13 +54,6 @@ export const connectToWallet = () => {
   }
 }
 
-export const getCurrentAccount = async () => {
-  const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-  const account = accounts[0] ? accounts[0].toLowerCase() : null
-
-  return account
-}
-
 export const shouldHideConnectButton = () => {
   return new Promise((resolve) => {
     if (window.ethereum) {
@@ -100,6 +93,7 @@ export function callMethod (isWalletEnabled, $functionInputs, explorerChainId, $
 
   const { chainId: walletChainIdHex } = window.ethereum
   compareChainIDs(explorerChainId, walletChainIdHex)
+    .then(() => getCurrentAccount())
     .then(currentAccount => {
       if (functionName) {
         const TargetContract = new window.web3.eth.Contract(contractAbi, contractAddress)
@@ -107,7 +101,9 @@ export function callMethod (isWalletEnabled, $functionInputs, explorerChainId, $
         const methodToCall = TargetContract.methods[functionName](...args).send(sendParams)
         methodToCall
           .on('error', function (error) {
-            openErrorModal(`Error in sending transaction for method "${functionName}"`, formatError(error), false)
+            var titleAndError = formatTitleAndError(error)
+            var message = titleAndError.message + (titleAndError.txHash ? `<br><a href="/tx/${titleAndError.txHash}">More info</a>` : '')
+            openErrorModal(titleAndError.title.length ? titleAndError.title : `Error in sending transaction for method "${functionName}"`, message, false)
           })
           .on('transactionHash', function (txHash) {
             onTransactionHash(txHash, $element, functionName)
@@ -135,6 +131,31 @@ export function callMethod (isWalletEnabled, $functionInputs, explorerChainId, $
     })
 }
 
+export function queryMethod (isWalletEnabled, url, $methodId, args, type, functionName, $responseContainer) {
+  var data = {
+    function_name: functionName,
+    method_id: $methodId.val(),
+    type: type,
+    args
+  }
+  if (isWalletEnabled) {
+    getCurrentAccount()
+      .then((currentAccount) => {
+        data = {
+          function_name: functionName,
+          method_id: $methodId.val(),
+          type: type,
+          from: currentAccount,
+          args
+        }
+        $.get(url, data, response => $responseContainer.html(response))
+      }
+      )
+  } else {
+    $.get(url, data, response => $responseContainer.html(response))
+  }
+}
+
 function onTransactionHash (txHash, $element, functionName) {
   openModalWithMessage($element.find('#pending-contract-write'), true, txHash)
   const getTxReceipt = (txHash) => {
@@ -153,27 +174,13 @@ function onTransactionHash (txHash, $element, functionName) {
   const txReceiptPollingIntervalId = setInterval(() => { getTxReceipt(txHash) }, 5 * 1000)
 }
 
-const formatError = (error) => {
-  let { message } = error
-  message = message && message.split('Error: ').length > 1 ? message.split('Error: ')[1] : message
-  return message
-}
-
 function getTxValue ($functionInputs) {
   const WEI_MULTIPLIER = 10 ** 18
   const $txValue = $functionInputs.filter('[tx-value]:first')
   const txValue = $txValue && $txValue.val() && parseFloat($txValue.val()) * WEI_MULTIPLIER
-  const txValueStr = txValue && txValue.toString(16)
-  return txValueStr
-}
-
-function compareChainIDs (explorerChainId, walletChainIdHex) {
-  if (explorerChainId !== parseInt(walletChainIdHex)) {
-    const networkDisplayNameFromWallet = props.getNetworkDisplayName(walletChainIdHex)
-    const networkDisplayName = props.getNetworkDisplayName(explorerChainId)
-    const errorMsg = `You connected to ${networkDisplayNameFromWallet} chain in the wallet, but the current instance of Blockscout is for ${networkDisplayName} chain`
-    return Promise.reject(new Error(errorMsg))
-  } else {
-    return getCurrentAccount()
+  var txValueStr = txValue && txValue.toString(16)
+  if (!txValueStr) {
+    txValueStr = '0'
   }
+  return '0x' + txValueStr
 }

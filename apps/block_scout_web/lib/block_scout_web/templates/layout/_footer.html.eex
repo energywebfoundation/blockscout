@@ -4,9 +4,9 @@
     <div class="row footer-logo-row">
       <div class="col-md-12">
         <%= link to: webapp_url(@conn), class: "footer-brand" do %>
-          <img class="footer-logo" src="<%= logo_footer() %>" alt="<%= subnetwork_title() %>" />
+          <img class="footer-logo" src="<%= static_path(@conn, logo_footer()) %>" alt="<%= subnetwork_title() %>" />
           <%= if logo_text() do %>
-            <span class="logo-text footer"> <%= logo_text() %> </span>
+            <span class="logo-text in-footer"> <%= logo_text() %> </span>
           <% end %>
         <% end %>
       </div>
@@ -26,13 +26,10 @@
             <i class="fab fa-linkedin"></i>
           </a>
           <a href="https://github.com/energywebfoundation" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Github") %>'>
-            <i class="fab fa-github"></i>
-          </a>
-          <a href="https://www.twitter.com/blockscoutcom/" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Twitter") %>'>
-            <i class="fab fa-twitter"></i>
+            <div class="footer-social-icon-container fontawesome-icon telegram"></div>
           </a>
           <a href="https://t.me/energyweb" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Telegram") %>'>
-            <i class="fab fa-telegram-plane"></i>
+            <div class="footer-social-icon-container fontawesome-icon telegram"></div>
           </a>
           <a href="https://medium.com/@energywebx" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Medium") %>'>
             <i class="fab fa-medium"></i>
@@ -47,7 +44,7 @@
         <h3>BlockScout</h3>
         <ul>
           <li><a href="<%= issue_link(@conn) %>" rel="noreferrer" class="footer-link" target="_blank"><%= gettext("Submit an Issue") %></a></li>
-          <li><a href="https://github.com/poanetwork/blockscout" rel="noreferrer" class="footer-link"><%= gettext("Contribute") %></a></li>
+          <li><a href="https://github.com/blockscout/blockscout" rel="noreferrer" class="footer-link"><%= gettext("Contribute") %></a></li>
           <li><a href="https://gitter.im/poanetwork/blockscout" rel="noreferrer" class="footer-link"><%= gettext("Chat") %></a></li>
           <li><a href="https://forum.poa.network/c/blockscout" rel="noreferrer" class="footer-link"><%= gettext("Support") %></a></li>
         </ul>

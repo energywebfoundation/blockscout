@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import { props } from 'eth-net-props'
 
 export function getContractABI ($form) {
   const implementationAbi = $form.data('implementation-abi')
@@ -22,11 +23,11 @@ export function prepareMethodArgs ($functionInputs, inputs) {
     const inputType = inputs[ind] && inputs[ind].type
     const inputComponents = inputs[ind] && inputs[ind].components
     let sanitizedInputValue
-    sanitizedInputValue = replaceSpaces(inputValue, inputType, inputComponents)
-    sanitizedInputValue = replaceDoubleQuotes(sanitizedInputValue, inputType, inputComponents)
+    sanitizedInputValue = replaceDoubleQuotes(inputValue, inputType, inputComponents)
+    sanitizedInputValue = replaceSpaces(sanitizedInputValue, inputType, inputComponents)
 
     if (isArrayInputType(inputType) || isTupleInputType(inputType)) {
-      if (sanitizedInputValue === '') {
+      if (sanitizedInputValue === '' || sanitizedInputValue === '[]') {
         return [[]]
       } else {
         if (sanitizedInputValue.startsWith('[') && sanitizedInputValue.endsWith(']')) {
@@ -35,12 +36,73 @@ export function prepareMethodArgs ($functionInputs, inputs) {
         const inputValueElements = sanitizedInputValue.split(',')
         const sanitizedInputValueElements = inputValueElements.map(elementValue => {
           const elementInputType = inputType.split('[')[0]
-          return replaceDoubleQuotes(elementValue, elementInputType)
+
+          var sanitizedElementValue = replaceDoubleQuotes(elementValue, elementInputType)
+          sanitizedElementValue = replaceSpaces(sanitizedElementValue, elementInputType)
+
+          if (isBoolInputType(elementInputType)) {
+            sanitizedElementValue = convertToBool(elementValue)
+          }
+          return sanitizedElementValue
         })
         return [sanitizedInputValueElements]
       }
+    } else if (isBoolInputType(inputType)) {
+      return convertToBool(sanitizedInputValue)
     } else { return sanitizedInputValue }
   })
+}
+
+export function compareChainIDs (explorerChainId, walletChainIdHex) {
+  if (explorerChainId !== parseInt(walletChainIdHex)) {
+    const networkDisplayNameFromWallet = props.getNetworkDisplayName(walletChainIdHex)
+    const networkDisplayName = props.getNetworkDisplayName(explorerChainId)
+    const errorMsg = `You connected to ${networkDisplayNameFromWallet} chain in the wallet, but the current instance of Blockscout is for ${networkDisplayName} chain`
+    return Promise.reject(new Error(errorMsg))
+  } else {
+    return Promise.resolve()
+  }
+}
+
+export const formatError = (error) => {
+  let { message } = error
+  message = message && message.split('Error: ').length > 1 ? message.split('Error: ')[1] : message
+  return message
+}
+
+export const formatTitleAndError = (error) => {
+  let { message } = error
+  var title = message && message.split('Error: ').length > 1 ? message.split('Error: ')[1] : message
+  title = title && title.split('{').length > 1 ? title.split('{')[0].replace(':', '') : title
+  var txHash = ''
+  var errorMap = ''
+  try {
+    errorMap = message && message.indexOf('{') >= 0 ? JSON.parse(message && message.slice(message.indexOf('{'))) : ''
+    message = errorMap.error || ''
+    txHash = errorMap.transactionHash || ''
+  } catch (exception) {
+    message = ''
+  }
+  return { title: title, message: message, txHash: txHash }
+}
+
+export const getCurrentAccount = () => {
+  return new Promise((resolve, reject) => {
+    window.ethereum.request({ method: 'eth_accounts' })
+      .then(accounts => {
+        const account = accounts[0] ? accounts[0].toLowerCase() : null
+        resolve(account)
+      })
+      .catch(err => {
+        reject(err)
+      })
+  })
+}
+
+function convertToBool (value) {
+  const boolVal = (value === 'true' || value === '1' || value === 1)
+
+  return boolVal
 }
 
 function isArrayInputType (inputType) {
@@ -63,6 +125,10 @@ function isStringInputType (inputType) {
   return inputType && inputType.includes('string') && !isArrayInputType(inputType)
 }
 
+function isBoolInputType (inputType) {
+  return inputType && inputType.includes('bool') && !isArrayInputType(inputType)
+}
+
 function isNonSpaceInputType (inputType) {
   return isAddressInputType(inputType) || inputType.includes('int') || inputType.includes('bool')
 }
@@ -80,7 +146,7 @@ function replaceSpaces (value, type, components) {
       })
       .join(',')
   } else {
-    return value
+    return value.trim()
   }
 }
 

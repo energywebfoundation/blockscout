@@ -29,11 +29,13 @@ defmodule Explorer.Chain.Transaction do
 
   alias Explorer.Chain.Transaction.{Fork, Status}
 
-  @optional_attrs ~w(block_hash block_number created_contract_address_hash cumulative_gas_used earliest_processing_start
+  @optional_attrs ~w(max_priority_fee_per_gas max_fee_per_gas block_hash block_number created_contract_address_hash cumulative_gas_used earliest_processing_start
                      error gas_used index created_contract_code_indexed_at status
                      to_address_hash revert_reason)a
 
   @required_attrs ~w(from_address_hash gas gas_price hash input nonce r s v value)a
+
+  @required_attrs_for_1559 ~w(type)a
 
   @typedoc """
   X coordinate module n in
@@ -132,6 +134,9 @@ defmodule Explorer.Chain.Transaction do
    * `v` - The V field of the signature.
    * `value` - wei transferred from `from_address` to `to_address`
    * `revert_reason` - revert reason of transaction
+   * `max_priority_fee_per_gas` - User defined maximum fee (tip) per unit of gas paid to validator for transaction prioritization.
+   * `max_fee_per_gas` - Maximum total amount per unit of gas a user is willing to pay for a transaction, including base fee and priority fee.
+   * `type` - New transaction type identifier introduced in EIP 2718 (Berlin HF)
   """
   @type t :: %__MODULE__{
           block: %Ecto.Association.NotLoaded{} | Block.t() | nil,
@@ -163,7 +168,10 @@ defmodule Explorer.Chain.Transaction do
           uncles: %Ecto.Association.NotLoaded{} | [Block.t()],
           v: v(),
           value: Wei.t(),
-          revert_reason: String.t()
+          revert_reason: String.t(),
+          max_priority_fee_per_gas: wei_per_gas | nil,
+          max_fee_per_gas: wei_per_gas | nil,
+          type: non_neg_integer() | nil
         }
 
   @derive {Poison.Encoder,
@@ -225,10 +233,13 @@ defmodule Explorer.Chain.Transaction do
     field(:v, :decimal)
     field(:value, Wei)
     field(:revert_reason, :string)
+    field(:max_priority_fee_per_gas, Wei)
+    field(:max_fee_per_gas, Wei)
+    field(:type, :integer)
 
     # A transient field for deriving old block hash during transaction upserts.
     # Used to force refetch of a block in case a transaction is re-collated
-    # in a different block. See: https://github.com/poanetwork/blockscout/issues/1911
+    # in a different block. See: https://github.com/blockscout/blockscout/issues/1911
     field(:old_block_hash, Hash.Full)
 
     timestamps()
@@ -398,9 +409,18 @@ defmodule Explorer.Chain.Transaction do
 
   """
   def changeset(%__MODULE__{} = transaction, attrs \\ %{}) do
+    enabled_1559 = Application.get_env(:explorer, :enabled_1559_support)
+
+    required_attrs = if enabled_1559, do: @required_attrs ++ @required_attrs_for_1559, else: @required_attrs
+
+    attrs_to_cast =
+      if enabled_1559,
+        do: @required_attrs ++ @required_attrs_for_1559 ++ @optional_attrs,
+        else: @required_attrs ++ @optional_attrs
+
     transaction
-    |> cast(attrs, @required_attrs ++ @optional_attrs)
-    |> validate_required(@required_attrs)
+    |> cast(attrs, attrs_to_cast)
+    |> validate_required(required_attrs)
     |> validate_collated()
     |> validate_error()
     |> validate_status()
@@ -422,6 +442,27 @@ defmodule Explorer.Chain.Transaction do
       )
 
     preload(query, [tt], token_transfers: ^token_transfers_query)
+  end
+
+  def decoded_revert_reason(transaction, revert_reason) do
+    case revert_reason do
+      "0x" <> hex_part ->
+        proccess_hex_revert_reason(hex_part, transaction)
+
+      hex_part ->
+        proccess_hex_revert_reason(hex_part, transaction)
+    end
+  end
+
+  defp proccess_hex_revert_reason(hex_revert_reason, %__MODULE__{to_address: smart_contract, hash: hash}) do
+    case Integer.parse(hex_revert_reason, 16) do
+      {number, ""} ->
+        binary_revert_reason = :binary.encode_unsigned(number)
+        decoded_input_data(%Transaction{to_address: smart_contract, hash: hash, input: %{bytes: binary_revert_reason}})
+
+      _ ->
+        hex_revert_reason
+    end
   end
 
   # Because there is no contract association, we know the contract was not verified
@@ -463,7 +504,27 @@ defmodule Explorer.Chain.Transaction do
         to_address: %{smart_contract: %{abi: abi, address_hash: address_hash}},
         hash: hash
       }) do
-    do_decoded_input_data(data, abi, address_hash, hash)
+    case do_decoded_input_data(data, abi, address_hash, hash) do
+      # In some cases transactions use methods of some unpredictadle contracts, so we can try to look up for method in a whole DB
+      {:error, :could_not_decode} ->
+        case decoded_input_data(%__MODULE__{
+               to_address: %{smart_contract: nil},
+               input: %{bytes: data},
+               hash: hash
+             }) do
+          {:error, :contract_not_verified, []} ->
+            {:error, :could_not_decode}
+
+          {:error, :contract_not_verified, candidates} ->
+            {:error, :contract_verified, candidates}
+
+          _ ->
+            {:error, :could_not_decode}
+        end
+
+      output ->
+        output
+    end
   end
 
   defp do_decoded_input_data(data, abi, address_hash, hash) do
@@ -475,6 +536,42 @@ defmodule Explorer.Chain.Transaction do
          text <- function_call(selector.function, mapping),
          do: {:ok, identifier, text, mapping}
   end
+
+  def get_method_name(
+        %__MODULE__{
+          input: %{bytes: <<method_id::binary-size(4), _::binary>>}
+        } = transaction
+      ) do
+    if transaction.created_contract_address_hash do
+      nil
+    else
+      case Transaction.decoded_input_data(%__MODULE__{
+             to_address: %{smart_contract: nil},
+             input: transaction.input,
+             hash: transaction.hash
+           }) do
+        {:error, :contract_not_verified, [{:ok, _method_id, decoded_func, _}]} ->
+          parse_method_name(decoded_func)
+
+        {:error, :contract_not_verified, []} ->
+          "0x" <> Base.encode16(method_id, case: :lower)
+
+        _ ->
+          "Transfer"
+      end
+    end
+  end
+
+  def get_method_name(_), do: "Transfer"
+
+  defp parse_method_name(method_desc) do
+    method_desc
+    |> String.split("(")
+    |> Enum.at(0)
+    |> upcase_first
+  end
+
+  defp upcase_first(<<first::utf8, rest::binary>>), do: String.upcase(<<first::utf8>>) <> rest
 
   defp function_call(name, mapping) do
     text =
@@ -535,6 +632,10 @@ defmodule Explorer.Chain.Transaction do
 
   def not_pending_transactions(query) do
     where(query, [t], not is_nil(t.block_number))
+  end
+
+  def not_dropped_or_replaced_transacions(query) do
+    where(query, [t], is_nil(t.error) or t.error != "dropped/replaced")
   end
 
   @collated_fields ~w(block_number cumulative_gas_used gas_used index)a
