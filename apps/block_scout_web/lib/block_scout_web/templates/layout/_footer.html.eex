@@ -26,7 +26,10 @@
             <i class="fab fa-linkedin"></i>
           </a>
           <a href="https://github.com/energywebfoundation" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Github") %>'>
-            <div class="footer-social-icon-container fontawesome-icon telegram"></div>
+            <div class="footer-social-icon-container fontawesome-icon github"></div>
+          </a>
+           <a href="https://www.twitter.com/energywebx" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Twitter") %>'>
+            <div class="footer-social-icon-container fontawesome-icon twitter"></div>
           </a>
           <a href="https://t.me/energyweb" rel="noreferrer" target="_blank" class="footer-social-icon" title='<%= gettext("Telegram") %>'>
             <div class="footer-social-icon-container fontawesome-icon telegram"></div>
