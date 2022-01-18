@@ -120,6 +120,23 @@ defmodule BlockScoutWeb.Chain do
     end
   end
 
+  def paging_options(%{
+        "address_hash" => address_hash,
+        "tx_hash" => tx_hash,
+        "block_hash" => block_hash,
+        "holder_count" => holder_count,
+        "name" => name,
+        "inserted_at" => inserted_at,
+        "item_type" => item_type
+      }) do
+    [
+      paging_options: %{
+        @default_paging_options
+        | key: {address_hash, tx_hash, block_hash, holder_count, name, inserted_at, item_type}
+      }
+    ]
+  end
+
   def paging_options(%{"holder_count" => holder_count, "name" => token_name}) do
     case Integer.parse(holder_count) do
       {holder_count, ""} ->
@@ -182,7 +199,7 @@ defmodule BlockScoutWeb.Chain do
   def paging_options(%{"inserted_at" => inserted_at_string, "hash" => hash_string}) do
     with {:ok, inserted_at, _} <- DateTime.from_iso8601(inserted_at_string),
          {:ok, hash} <- string_to_transaction_hash(hash_string) do
-      [paging_options: %{@default_paging_options | key: {inserted_at, hash}}]
+      [paging_options: %{@default_paging_options | key: {inserted_at, hash}, is_pending_tx: true}]
     else
       _ ->
         [paging_options: @default_paging_options]
@@ -196,12 +213,42 @@ defmodule BlockScoutWeb.Chain do
     [paging_options: %{@default_paging_options | key: {value, address_hash}}]
   end
 
+  def paging_options(%{"token_name" => name, "token_type" => type, "value" => value}) do
+    [paging_options: %{@default_paging_options | key: {name, type, value}}]
+  end
+
   def paging_options(_params), do: [paging_options: @default_paging_options]
+
+  def put_key_value_to_paging_options([paging_options: paging_options], key, value) do
+    [paging_options: Map.put(paging_options, key, value)]
+  end
 
   def param_to_block_number(formatted_number) when is_binary(formatted_number) do
     case Integer.parse(formatted_number) do
       {number, ""} -> {:ok, number}
       _ -> {:error, :invalid}
+    end
+  end
+
+  def param_to_block_timestamp(timestamp_string) when is_binary(timestamp_string) do
+    case Integer.parse(timestamp_string) do
+      {temstamp_int, ""} ->
+        timestamp =
+          temstamp_int
+          |> DateTime.from_unix!(:second)
+
+        {:ok, timestamp}
+
+      _ ->
+        {:error, :invalid_timestamp}
+    end
+  end
+
+  def param_to_block_closest(closest) when is_binary(closest) do
+    case closest do
+      "before" -> {:ok, :before}
+      "after" -> {:ok, :after}
+      _ -> {:error, :invalid_closest}
     end
   end
 
@@ -279,12 +326,38 @@ defmodule BlockScoutWeb.Chain do
     %{"address_hash" => to_string(address_hash), "value" => Decimal.to_integer(value)}
   end
 
+  defp paging_params({%CurrentTokenBalance{value: value}, _, %Token{name: name, type: type}}) do
+    %{"token_name" => name, "token_type" => type, "value" => Decimal.to_integer(value)}
+  end
+
   defp paging_params(%CoinBalance{block_number: block_number}) do
     %{"block_number" => block_number}
   end
 
   defp paging_params(%StakingPool{staking_address_hash: address_hash, stakes_ratio: value}) do
     %{"address_hash" => address_hash, "value" => Decimal.to_string(value)}
+  end
+
+  defp paging_params(%{
+         address_hash: address_hash,
+         tx_hash: tx_hash,
+         block_hash: block_hash,
+         holder_count: holder_count,
+         name: name,
+         inserted_at: inserted_at,
+         type: type
+       }) do
+    inserted_at_datetime = DateTime.to_iso8601(inserted_at)
+
+    %{
+      "address_hash" => address_hash,
+      "tx_hash" => tx_hash,
+      "block_hash" => block_hash,
+      "holder_count" => holder_count,
+      "name" => name,
+      "inserted_at" => inserted_at_datetime,
+      "item_type" => type
+    }
   end
 
   defp block_or_transaction_from_param(param) do

@@ -5,26 +5,18 @@ defmodule BlockScout.Mixfile do
 
   def project do
     [
+      app: :block_scout,
       aliases: aliases(Mix.env()),
       version: "2.0",
       apps_path: "apps",
       deps: deps(),
-      dialyzer: [
-        plt_add_deps: :transitive,
-        plt_add_apps: ~w(ex_unit mix)a,
-        ignore_warnings: ".dialyzer-ignore"
-      ],
+      dialyzer: dialyzer(),
       elixir: "~> 1.10",
       preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test,
         credo: :test,
         dialyzer: :test
       ],
       start_permanent: Mix.env() == :prod,
-      test_coverage: [tool: ExCoveralls],
       releases: [
         blockscout: [
           applications: [
@@ -39,6 +31,16 @@ defmodule BlockScout.Mixfile do
   end
 
   ## Private Functions
+
+  defp dialyzer() do
+    [
+      plt_add_deps: :transitive,
+      plt_add_apps: ~w(ex_unit mix)a,
+      ignore_warnings: ".dialyzer-ignore",
+      plt_core_path: "priv/plts",
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+    ]
+  end
 
   defp aliases(env) do
     [
@@ -73,10 +75,9 @@ defmodule BlockScout.Mixfile do
   defp deps do
     [
       {:absinthe_plug, git: "https://github.com/blockscout/absinthe_plug.git", tag: "1.5.3", override: true},
+      {:tesla, "~> 1.3.3"},
       # Documentation
-      {:ex_doc, "~> 0.19.0", only: [:dev]},
-      # Code coverage
-      {:excoveralls, "~> 0.13.3"},
+      {:ex_doc, "~> 0.25.2", only: :dev, runtime: false},
       {:number, "~> 1.0.3"}
     ]
   end

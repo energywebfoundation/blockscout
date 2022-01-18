@@ -19,15 +19,10 @@ defmodule EthereumJsonrpc.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       lockfile: "../../mix.lock",
       preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test,
         credo: :test,
         dialyzer: :test
       ],
       start_permanent: Mix.env() == :prod,
-      test_coverage: [tool: ExCoveralls],
       version: "0.1.0"
     ]
   end
@@ -64,15 +59,13 @@ defmodule EthereumJsonrpc.MixProject do
       # WebSocket-server for testing `EthereumJSONRPC.WebSocket.WebSocketClient`.
       {:cowboy, "~> 2.0", only: [:dev, :test]},
       # Style Checking
-      {:credo, "~> 1.1", only: :test, runtime: false},
+      {:credo, "~> 1.5", only: :test, runtime: false},
       # Static Type Checking
-      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
-      # Code coverage
-      {:excoveralls, "~> 0.13.3"},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       # JSONRPC HTTP Post calls
       {:httpoison, "~> 1.6"},
       # Decode/Encode JSON for JSONRPC
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.2.2"},
       # Log errors and application output to separate files
       {:logger_file_backend, "~> 0.0.10"},
       # Mocking `EthereumJSONRPC.Transport` and `EthereumJSONRPC.HTTP` so we avoid hitting real chains for local testing
@@ -82,16 +75,16 @@ defmodule EthereumJsonrpc.MixProject do
       # `:spandex` integration with Datadog
       {:spandex_datadog, "~> 1.0"},
       # Convert unix timestamps in JSONRPC to DateTimes
-      {:timex, "~> 3.6"},
+      {:timex, "~> 3.7.1"},
       # Encode/decode function names and arguments
       {:ex_abi, "~> 0.4"},
       # `:verify_fun` for `Socket.Web.connect`
       {:ssl_verify_fun, "~> 1.1"},
       # `EthereumJSONRPC.WebSocket`
       {:websocket_client, "~> 1.3"},
-      {:decimal, "~> 1.0"},
-      {:decorator, "~> 1.2"},
-      {:hackney, "~> 1.16"},
+      {:decimal, "~> 1.9"},
+      {:decorator, "~> 1.4"},
+      {:hackney, "~> 1.17.4"},
       {:poolboy, "~> 1.5.2"}
     ]
   end

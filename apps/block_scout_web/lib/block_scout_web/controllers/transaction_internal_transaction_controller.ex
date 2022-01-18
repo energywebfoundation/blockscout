@@ -3,7 +3,7 @@ defmodule BlockScoutWeb.TransactionInternalTransactionController do
 
   import BlockScoutWeb.Chain, only: [paging_options: 1, next_page_params: 3, split_list_by_page: 1]
 
-  alias BlockScoutWeb.{AccessHelpers, InternalTransactionView, TransactionView}
+  alias BlockScoutWeb.{AccessHelpers, Controller, InternalTransactionView, TransactionController}
   alias Explorer.{Chain, Market}
   alias Explorer.ExchangeRates.Token
   alias Phoenix.View
@@ -64,28 +64,16 @@ defmodule BlockScoutWeb.TransactionInternalTransactionController do
       )
     else
       {:restricted_access, _} ->
-        conn
-        |> put_status(404)
-        |> put_view(TransactionView)
-        |> render("not_found.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_not_found_view(conn, transaction_hash_string)
 
       :error ->
-        conn
-        |> put_status(422)
-        |> put_view(TransactionView)
-        |> render("invalid.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_invalid_view(conn, transaction_hash_string)
 
       {:error, :not_found} ->
-        conn
-        |> put_status(404)
-        |> put_view(TransactionView)
-        |> render("not_found.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_not_found_view(conn, transaction_hash_string)
 
       :not_found ->
-        conn
-        |> put_status(404)
-        |> put_view(TransactionView)
-        |> render("not_found.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_not_found_view(conn, transaction_hash_string)
     end
   end
 
@@ -109,29 +97,20 @@ defmodule BlockScoutWeb.TransactionInternalTransactionController do
         conn,
         "index.html",
         exchange_rate: Market.get_exchange_rate(Explorer.coin()) || Token.null(),
-        current_path: current_path(conn),
+        current_path: Controller.current_full_path(conn),
         block_height: Chain.block_height(),
         show_token_transfers: Chain.transaction_has_token_transfers?(transaction_hash),
         transaction: transaction
       )
     else
       {:restricted_access, _} ->
-        conn
-        |> put_status(404)
-        |> put_view(TransactionView)
-        |> render("not_found.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_not_found_view(conn, transaction_hash_string)
 
       :error ->
-        conn
-        |> put_status(422)
-        |> put_view(TransactionView)
-        |> render("invalid.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_invalid_view(conn, transaction_hash_string)
 
       {:error, :not_found} ->
-        conn
-        |> put_status(404)
-        |> put_view(TransactionView)
-        |> render("not_found.html", transaction_hash: transaction_hash_string)
+        TransactionController.set_not_found_view(conn, transaction_hash_string)
     end
   end
 end
