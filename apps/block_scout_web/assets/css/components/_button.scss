@@ -70,6 +70,11 @@ $button-secondary-color: $secondary !default;
     padding: 20px 60px 20px;
   }
 
+  &-danger {
+    background-color: #dc3545 !important;
+    border: 1px solid #dc3545 !important;
+  }
+
   // Block button
   // -------------------------
 
@@ -89,4 +94,11 @@ $button-secondary-color: $secondary !default;
 // Vertically space out multiple block buttons
 .button-block + .button-block {
   margin-top: 5px;
+}
+
+.spinner {
+  background-image: url('/images/spinner.svg');
+  background-position: right;
+  background-repeat: no-repeat;
+  background-size: 30px;
 }

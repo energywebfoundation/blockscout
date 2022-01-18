@@ -15,6 +15,7 @@ defmodule Explorer.Application do
     BlockNumber,
     Blocks,
     GasUsage,
+    MinMissingBlockNumber,
     NetVersion,
     TransactionCount,
     Transactions,
@@ -46,6 +47,7 @@ defmodule Explorer.Application do
       Supervisor.child_spec({Task.Supervisor, name: Explorer.GenesisDataTaskSupervisor}, id: GenesisDataTaskSupervisor),
       Supervisor.child_spec({Task.Supervisor, name: Explorer.TaskSupervisor}, id: Explorer.TaskSupervisor),
       Explorer.SmartContract.SolcDownloader,
+      Explorer.SmartContract.VyperDownloader,
       {Registry, keys: :duplicate, name: Registry.ChainEvents, id: Registry.ChainEvents},
       {Admin.Recovery, [[], [name: Admin.Recovery]]},
       TransactionCount,
@@ -60,7 +62,8 @@ defmodule Explorer.Application do
       con_cache_child_spec(RSK.cache_name(), ttl_check_interval: :timer.minutes(1), global_ttl: :timer.minutes(30)),
       Transactions,
       Accounts,
-      Uncles
+      Uncles,
+      MinMissingBlockNumber
     ]
 
     children = base_children ++ configurable_children()
@@ -82,10 +85,13 @@ defmodule Explorer.Application do
       configure(Explorer.Counters.AddressesWithBalanceCounter),
       configure(Explorer.Counters.AddressesCounter),
       configure(Explorer.Counters.AddressTransactionsCounter),
+      configure(Explorer.Counters.AddressTokenTransfersCounter),
       configure(Explorer.Counters.AddressTransactionsGasUsageCounter),
       configure(Explorer.Counters.AddressTokenUsdSum),
       configure(Explorer.Counters.TokenHoldersCounter),
       configure(Explorer.Counters.TokenTransfersCounter),
+      configure(Explorer.Counters.BlockBurnedFeeCounter),
+      configure(Explorer.Counters.BlockPriorityFeeCounter),
       configure(Explorer.Counters.AverageBlockTime),
       configure(Explorer.Counters.Bridge),
       configure(Explorer.Validator.MetadataProcessor),
