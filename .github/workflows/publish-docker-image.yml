@@ -42,4 +42,4 @@ jobs:
           images: energyweb/blockscout-explorer
 
       - name: Build & Push Docker image
-        run: docker buildx build -t energyweb/blockscout-explorer:${{ env.RELEASE_VERSION }}-beta-volta -f ./docker/Dockerfile --push --platform=linux/arm64,linux/amd64 .
+        run: docker buildx build -t energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta-volta -f ./docker/Dockerfile --push --platform=linux/arm64,linux/amd64 .
