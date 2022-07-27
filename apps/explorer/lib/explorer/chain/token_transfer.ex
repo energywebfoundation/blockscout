@@ -215,8 +215,20 @@ defmodule Explorer.Chain.TokenTransfer do
 
   def page_token_transfer(query, %PagingOptions{key: nil}), do: query
 
+  def page_token_transfer(query, %PagingOptions{key: {token_id}, asc_order: true}) do
+    where(query, [tt], tt.token_id > ^token_id)
+  end
+
   def page_token_transfer(query, %PagingOptions{key: {token_id}}) do
     where(query, [tt], tt.token_id < ^token_id)
+  end
+
+  def page_token_transfer(query, %PagingOptions{key: {block_number, log_index}, asc_order: true}) do
+    where(
+      query,
+      [tt],
+      tt.block_number > ^block_number or (tt.block_number == ^block_number and tt.log_index > ^log_index)
+    )
   end
 
   def page_token_transfer(query, %PagingOptions{key: {block_number, log_index}}) do
@@ -299,7 +311,7 @@ defmodule Explorer.Chain.TokenTransfer do
   To find out its current owner, it is necessary to look at the token last
   transfer.
   """
-  @spec address_to_unique_tokens(Hash.Address.t()) :: %Ecto.Query{}
+  @spec address_to_unique_tokens(Hash.Address.t()) :: Ecto.Query.t()
   def address_to_unique_tokens(contract_address_hash) do
     from(
       tt in TokenTransfer,
