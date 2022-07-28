@@ -53,4 +53,4 @@ jobs:
         run: docker build -t energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta -f ./docker/Dockerfile .
 
       - name: Push Docker image
-        run: docker push energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta --platform=linux/arm64,linux/amd64
+        run: docker push energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta
