@@ -50,7 +50,16 @@ jobs:
       #     labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build Docker image
-        run: docker build -t energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta -f ./docker/Dockerfile .
+        run: |
+          # docker build -t energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta -f ./docker/Dockerfile .
+          docker build \
+          -t energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta \
+          -f ./docker/Dockerfile . \
+          --build-arg NETWORK_PATH="/" \
+          --build-arg CHAIN_ID="246" \
+          --build-arg JSON_RPC="https://rpc.energyweb.org/" \
+          --build-arg SUBNETWORK="Energy Web Chain" \
+          --build-arg COIN_NAME="EWT"
 
       - name: Push Docker image
         run: docker push energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta
