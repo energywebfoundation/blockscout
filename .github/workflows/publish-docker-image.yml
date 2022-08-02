@@ -54,21 +54,11 @@ jobs:
           docker build \
           -t energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta-volta \
           -f ./docker/Dockerfile . \
-          --build-arg CACHE_EXCHANGE_RATES_PERIOD="" \
-          --build-arg DISABLE_READ_API="false" \
-          --build-arg API_PATH="/" \
           --build-arg NETWORK_PATH="/" \
-          --build-arg DISABLE_WEBAPP="false" \
-          --build-arg DISABLE_WRITE_API="false" \
-          --build-arg CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER="" \
-          --build-arg WOBSERVER_ENABLED="false" \
-          --build-arg ADMIN_PANEL_ENABLED="" \
-          --build-arg CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL="" \
-          --build-arg SOCKET_ROOT="" \
-          --build-arg CHAIN_ID="" \
-          --build-arg JSON_RPC="" \
-          --build-arg SUBNETWORK="" \
-          --build-arg COIN_NAME=""
+          --build-arg CHAIN_ID="73799" \
+          --build-arg JSON_RPC="https://volta-rpc.energyweb.org/" \
+          --build-arg SUBNETWORK="Volta Testnet" \
+          --build-arg COIN_NAME="Volta"
 
       - name: Push Docker image
         run: docker push energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta-volta
