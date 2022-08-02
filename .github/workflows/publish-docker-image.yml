@@ -58,7 +58,7 @@ jobs:
           --build-arg CHAIN_ID="73799" \
           --build-arg JSON_RPC="https://volta-rpc.energyweb.org/" \
           --build-arg SUBNETWORK="Volta Testnet" \
-          --build-arg COIN_NAME="Volta"
+          --build-arg COIN_NAME="VT"
 
       - name: Push Docker image
         run: docker push energyweb/blockscout-explorer:v${{ env.RELEASE_VERSION }}-beta-volta
