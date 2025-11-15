@@ -5,9 +5,12 @@
 
 name: Publish Docker image
 
+# DISABLED: This workflow will fail in EWF repo
+# on:
+#   release:
+#     types: [published]
 on:
-  release:
-    types: [published]
+  workflow_dispatch:  # Manual trigger only - disabled for EWF
 
 env:
   OTP_VERSION: '25.2.1'

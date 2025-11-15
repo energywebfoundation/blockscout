@@ -1,0 +1,181 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Publish Docker image
+
+# Manual trigger only - works for both volta_canon and ewc_canon branches
+on:
+  workflow_dispatch:
+    inputs:
+      otp_version:
+        description: 'OTP Version'
+        required: false
+        default: '25.2.1'
+        type: string
+      elixir_version:
+        description: 'Elixir Version'
+        required: false
+        default: '1.14.3'
+        type: string
+      release_version:
+        description: 'Release Version (e.g. v5.1.0)'
+        required: false
+        default: 'v5.1.0'
+        type: string
+      chain_id:
+        description: 'Chain ID (e.g., 73799 for Volta, 246 for EWC)'
+        required: false
+        default: '73799'
+        type: string
+      json_rpc:
+        description: 'JSON RPC URL'
+        required: false
+        default: 'https://volta-rpc.energyweb.org/'
+        type: string
+      subnetwork:
+        description: 'Subnetwork name (e.g., "Volta Testnet" or "Energy Web Chain")'
+        required: false
+        default: 'Volta Testnet'
+        type: string
+      coin_name:
+        description: 'Coin name (e.g., VT or EWT)'
+        required: false
+        default: 'VT'
+        type: string
+      tag_suffix:
+        description: 'Tag suffix (e.g., "beta-volta" or "beta")'
+        required: false
+        default: 'beta-volta'
+        type: string
+      network_path:
+        description: 'Network path'
+        required: false
+        default: '/'
+        type: string
+      api_path:
+        description: 'API path'
+        required: false
+        default: '/'
+        type: string
+      disable_read_api:
+        description: 'Disable Read API (true/false)'
+        required: false
+        default: 'false'
+        type: string
+      disable_webapp:
+        description: 'Disable Webapp (true/false)'
+        required: false
+        default: 'false'
+        type: string
+      disable_write_api:
+        description: 'Disable Write API (true/false)'
+        required: false
+        default: 'false'
+        type: string
+      wobserver_enabled:
+        description: 'Wobserver Enabled (true/false)'
+        required: false
+        default: 'false'
+        type: string
+      cache_exchange_rates_period:
+        description: 'Cache Exchange Rates Period (leave empty for default)'
+        required: false
+        default: ''
+        type: string
+      cache_enable_total_gas_usage_counter:
+        description: 'Cache Enable Total Gas Usage Counter (leave empty for default)'
+        required: false
+        default: ''
+        type: string
+      admin_panel_enabled:
+        description: 'Admin Panel Enabled (leave empty for default)'
+        required: false
+        default: ''
+        type: string
+      cache_address_with_balances_update_interval:
+        description: 'Cache Address With Balances Update Interval (leave empty for default)'
+        required: false
+        default: ''
+        type: string
+      socket_root:
+        description: 'Socket Root (leave empty for default)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    env:
+      OTP_VERSION: ${{ github.event.inputs.otp_version || '25.2.1' }}
+      ELIXIR_VERSION: ${{ github.event.inputs.elixir_version || '1.14.3' }}
+      RELEASE_VERSION: ${{ github.event.inputs.release_version || 'v5.1.0' }}
+      CHAIN_ID: ${{ github.event.inputs.chain_id || '73799' }}
+      JSON_RPC: ${{ github.event.inputs.json_rpc || 'https://volta-rpc.energyweb.org/' }}
+      SUBNETWORK: ${{ github.event.inputs.subnetwork || 'Volta Testnet' }}
+      COIN_NAME: ${{ github.event.inputs.coin_name || 'VT' }}
+      TAG_SUFFIX: ${{ github.event.inputs.tag_suffix || 'beta-volta' }}
+      NETWORK_PATH: ${{ github.event.inputs.network_path || '/' }}
+      API_PATH: ${{ github.event.inputs.api_path || '/' }}
+      DISABLE_READ_API: ${{ github.event.inputs.disable_read_api || 'false' }}
+      DISABLE_WEBAPP: ${{ github.event.inputs.disable_webapp || 'false' }}
+      DISABLE_WRITE_API: ${{ github.event.inputs.disable_write_api || 'false' }}
+      WOBSERVER_ENABLED: ${{ github.event.inputs.wobserver_enabled || 'false' }}
+      CACHE_EXCHANGE_RATES_PERIOD: ${{ github.event.inputs.cache_exchange_rates_period || '' }}
+      CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER: ${{ github.event.inputs.cache_enable_total_gas_usage_counter || '' }}
+      ADMIN_PANEL_ENABLED: ${{ github.event.inputs.admin_panel_enabled || '' }}
+      CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL: ${{ github.event.inputs.cache_address_with_balances_update_interval || '' }}
+      SOCKET_ROOT: ${{ github.event.inputs.socket_root || '' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: energyweb/blockscout-explorer
+
+      - name: Build & Push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          cache-from: type=registry,ref=energyweb/blockscout-explorer:buildcache
+          cache-to: type=registry,ref=energyweb/blockscout-explorer:buildcache,mode=max
+          tags: energyweb/blockscout-explorer:${{ env.RELEASE_VERSION }}-${{ env.TAG_SUFFIX }}
+          platforms: |
+            linux/arm64
+            linux/amd64
+          build-args: |
+            NETWORK_PATH=${{ env.NETWORK_PATH }}
+            CHAIN_ID=${{ env.CHAIN_ID }}
+            JSON_RPC=${{ env.JSON_RPC }}
+            SUBNETWORK=${{ env.SUBNETWORK }}
+            COIN_NAME=${{ env.COIN_NAME }}
+            CACHE_EXCHANGE_RATES_PERIOD=${{ env.CACHE_EXCHANGE_RATES_PERIOD }}
+            DISABLE_READ_API=${{ env.DISABLE_READ_API }}
+            API_PATH=${{ env.API_PATH }}
+            DISABLE_WEBAPP=${{ env.DISABLE_WEBAPP }}
+            DISABLE_WRITE_API=${{ env.DISABLE_WRITE_API }}
+            CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER=${{ env.CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER }}
+            WOBSERVER_ENABLED=${{ env.WOBSERVER_ENABLED }}
+            ADMIN_PANEL_ENABLED=${{ env.ADMIN_PANEL_ENABLED }}
+            CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL=${{ env.CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL }}
+            SOCKET_ROOT=${{ env.SOCKET_ROOT }}

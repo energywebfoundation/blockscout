@@ -1,9 +1,12 @@
 name: Publish Docker image on every push to master branch
 
+# DISABLED: This workflow will fail in EWF repo
+# on:
+#   push:
+#     branches:
+#       - master
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:  # Manual trigger only - disabled for EWF
 env:
   OTP_VERSION: '25.2.1'
   ELIXIR_VERSION: '1.14.3'

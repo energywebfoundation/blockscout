@@ -1,3 +1,7 @@
+# DISABLED: CircleCI will fail in EWF repo
+# CircleCI is used for CI/CD testing (credo, eslint, tests, etc.)
+# This is disabled because it requires CircleCI project setup and may fail
+# To re-enable, uncomment the workflows section at the bottom
 version: 2
 jobs:
   build:
@@ -560,68 +564,68 @@ jobs:
       - run:
           name: Tell coveralls.io build is done
           command: curl -k https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN -d "payload[build_num]=$CIRCLE_WORKFLOW_WORKSPACE_ID&payload[status]=done"
-workflows:
-  version: 2
-  primary:
-    jobs:
-      - build
-      - check_formatted:
-          requires:
-            - build
-      # This unfortunately will only fire if all the tests pass because of how `requires` works
-      - coveralls_merge:
-          requires:
-            # - test_nethermind_http_websocket
-            - test_nethermind_mox
-            # - test_geth_http_websocket
-            # - test_geth_mox
-      - credo:
-          requires:
-            - build
-      - deploy_aws:
-          filters:
-            branches:
-              only:
-                - production
-                - staging
-                - /deploy-[A-Za-z0-9]+$/
-          requires:
-            - check_formatted
-            - credo
-            - eslint
-            - jest
-            - sobelow
-            # - test_nethermind_http_websocket
-            - test_nethermind_mox
-            # - test_geth_http_websocket
-            # - test_geth_mox
-      - dialyzer:
-          requires:
-            - build
-      - eslint:
-          requires:
-            - build
-      - gettext:
-          requires:
-            - build
-      - jest:
-          requires:
-            - build
-      - release:
-          requires:
-            - build
-      - sobelow:
-          requires:
-            - build
-      # - test_nethermind_http_websocket:
-      #     requires:
-      #       - build
-      - test_nethermind_mox:
-          requires:
-            - build
-      # - test_geth_http_websocket:
-      #     requires:
-      #       - build
-      # - test_geth_mox:
-      #     requires:
-      #       - build
+# workflows:
+#   version: 2
+#   primary:
+#     jobs:
+#       - build
+#       - check_formatted:
+#           requires:
+#             - build
+#       # This unfortunately will only fire if all the tests pass because of how `requires` works
+#       - coveralls_merge:
+#           requires:
+#             # - test_nethermind_http_websocket
+#             - test_nethermind_mox
+#             # - test_geth_http_websocket
+#             # - test_geth_mox
+#       - credo:
+#           requires:
+#             - build
+#       - deploy_aws:
+#           filters:
+#             branches:
+#               only:
+#                 - production
+#                 - staging
+#                 - /deploy-[A-Za-z0-9]+$/
+#           requires:
+#             - check_formatted
+#             - credo
+#             - eslint
+#             - jest
+#             - sobelow
+#             # - test_nethermind_http_websocket
+#             - test_nethermind_mox
+#             # - test_geth_http_websocket
+#             # - test_geth_mox
+#       - dialyzer:
+#           requires:
+#             - build
+#       - eslint:
+#           requires:
+#             - build
+#       - gettext:
+#           requires:
+#             - build
+#       - jest:
+#           requires:
+#             - build
+#       - release:
+#           requires:
+#             - build
+#       - sobelow:
+#           requires:
+#             - build
+#       # - test_nethermind_http_websocket:
+#       #     requires:
+#       #       - build
+#       - test_nethermind_mox:
+#           requires:
+#             - build
+#       # - test_geth_http_websocket:
+#       #     requires:
+#       #       - build
+#       # - test_geth_mox:
+#       #     requires:
+#       #       - build
