@@ -115,6 +115,15 @@ config :ueberauth, Ueberauth,
 config :hammer,
   backend: {Hammer.Backend.ETS, [expiry_ms: 60_000 * 60 * 4, cleanup_interval_ms: 60_000 * 10]}
 
+# Footer configuration
+config :block_scout_web, BlockScoutWeb,
+  footer: [
+    github_link: "https://github.com/energywebfoundation",
+    chat_link: "https://t.me/energyweb",
+    enable_forum_link: true,
+    forum_link: "https://medium.com/@energywebx"
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
