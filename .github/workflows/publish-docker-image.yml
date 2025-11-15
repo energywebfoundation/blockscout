@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Publish Docker image
+name: Publish Docker image (EWF)
 
 # Manual trigger only - works for both volta_canon and ewc_canon branches
 # Note: GitHub Actions limits workflow_dispatch to 10 inputs max
