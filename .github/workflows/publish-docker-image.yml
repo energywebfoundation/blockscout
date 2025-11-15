@@ -6,6 +6,7 @@
 name: Publish Docker image
 
 # Manual trigger only - works for both volta_canon and ewc_canon branches
+# Note: GitHub Actions limits workflow_dispatch to 10 inputs max
 on:
   workflow_dispatch:
     inputs:
@@ -49,61 +50,6 @@ on:
         required: false
         default: 'beta-volta'
         type: string
-      network_path:
-        description: 'Network path'
-        required: false
-        default: '/'
-        type: string
-      api_path:
-        description: 'API path'
-        required: false
-        default: '/'
-        type: string
-      disable_read_api:
-        description: 'Disable Read API (true/false)'
-        required: false
-        default: 'false'
-        type: string
-      disable_webapp:
-        description: 'Disable Webapp (true/false)'
-        required: false
-        default: 'false'
-        type: string
-      disable_write_api:
-        description: 'Disable Write API (true/false)'
-        required: false
-        default: 'false'
-        type: string
-      wobserver_enabled:
-        description: 'Wobserver Enabled (true/false)'
-        required: false
-        default: 'false'
-        type: string
-      cache_exchange_rates_period:
-        description: 'Cache Exchange Rates Period (leave empty for default)'
-        required: false
-        default: ''
-        type: string
-      cache_enable_total_gas_usage_counter:
-        description: 'Cache Enable Total Gas Usage Counter (leave empty for default)'
-        required: false
-        default: ''
-        type: string
-      admin_panel_enabled:
-        description: 'Admin Panel Enabled (leave empty for default)'
-        required: false
-        default: ''
-        type: string
-      cache_address_with_balances_update_interval:
-        description: 'Cache Address With Balances Update Interval (leave empty for default)'
-        required: false
-        default: ''
-        type: string
-      socket_root:
-        description: 'Socket Root (leave empty for default)'
-        required: false
-        default: ''
-        type: string
 
 jobs:
   push_to_registry:
@@ -118,17 +64,18 @@ jobs:
       SUBNETWORK: ${{ github.event.inputs.subnetwork || 'Volta Testnet' }}
       COIN_NAME: ${{ github.event.inputs.coin_name || 'VT' }}
       TAG_SUFFIX: ${{ github.event.inputs.tag_suffix || 'beta-volta' }}
-      NETWORK_PATH: ${{ github.event.inputs.network_path || '/' }}
-      API_PATH: ${{ github.event.inputs.api_path || '/' }}
-      DISABLE_READ_API: ${{ github.event.inputs.disable_read_api || 'false' }}
-      DISABLE_WEBAPP: ${{ github.event.inputs.disable_webapp || 'false' }}
-      DISABLE_WRITE_API: ${{ github.event.inputs.disable_write_api || 'false' }}
-      WOBSERVER_ENABLED: ${{ github.event.inputs.wobserver_enabled || 'false' }}
-      CACHE_EXCHANGE_RATES_PERIOD: ${{ github.event.inputs.cache_exchange_rates_period || '' }}
-      CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER: ${{ github.event.inputs.cache_enable_total_gas_usage_counter || '' }}
-      ADMIN_PANEL_ENABLED: ${{ github.event.inputs.admin_panel_enabled || '' }}
-      CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL: ${{ github.event.inputs.cache_address_with_balances_update_interval || '' }}
-      SOCKET_ROOT: ${{ github.event.inputs.socket_root || '' }}
+      # Hardcoded values (not configurable via inputs due to 10 input limit)
+      NETWORK_PATH: '/'
+      API_PATH: '/'
+      DISABLE_READ_API: 'false'
+      DISABLE_WEBAPP: 'false'
+      DISABLE_WRITE_API: 'false'
+      WOBSERVER_ENABLED: 'false'
+      CACHE_EXCHANGE_RATES_PERIOD: ''
+      CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER: ''
+      ADMIN_PANEL_ENABLED: ''
+      CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL: ''
+      SOCKET_ROOT: ''
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
