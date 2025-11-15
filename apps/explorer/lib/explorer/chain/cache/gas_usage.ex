@@ -11,7 +11,7 @@ defmodule Explorer.Chain.Cache.GasUsage do
     ]
 
   @default_cache_period :timer.hours(2)
-  config = Application.get_env(:explorer, __MODULE__)
+  config = Application.compile_env(:explorer, __MODULE__)
   @enabled Keyword.get(config, :enabled)
 
   use Explorer.Chain.MapCache,
@@ -57,7 +57,8 @@ defmodule Explorer.Chain.Cache.GasUsage do
           rescue
             e ->
               Logger.debug([
-                "Coudn't update gas used sum test #{inspect(e)}"
+                "Coudn't update gas used sum: ",
+                Exception.format(:error, e, __STACKTRACE__)
               ])
           end
 

@@ -1,9 +1,13 @@
 import { Socket } from 'phoenix'
 import { locale } from './locale'
 
+// @ts-ignore
 let websocketRootUrl = process.env.SOCKET_ROOT
-if (!websocketRootUrl || websocketRootUrl === '/') {
+if (!websocketRootUrl) {
   websocketRootUrl = ''
+}
+if (websocketRootUrl.endsWith('/')) {
+  websocketRootUrl = websocketRootUrl.slice(0, -1)
 }
 
 const socket = new Socket(websocketRootUrl + '/socket', { params: { locale } })
@@ -23,6 +27,7 @@ export default socket
  * Returns a Channel instance.
  */
 export function subscribeChannel (topic) {
+  // @ts-ignore
   const channel = socket.channels.find(channel => channel.topic === topic)
 
   if (channel) {
